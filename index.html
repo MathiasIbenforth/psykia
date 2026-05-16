@@ -61,6 +61,8 @@
   .screen.gone { display: none !important; }
 
   #login-screen { align-items:flex-start; padding-top:40px; padding-bottom:40px; }
+  #lang-screen { align-items:flex-start; justify-content:flex-start; overflow-y:auto; padding-top:max(40px, env(safe-area-inset-top, 24px)); padding-bottom:40px; }
+  #lang-screen .lang-inner { margin:0 auto; }
   #overview-screen, #consent-screen {
     align-items: flex-start;
     padding: 60px 24px 80px;
@@ -465,9 +467,32 @@
   .summary-box ul li::before { content: '✓'; color: var(--calm); font-weight: 500; flex-shrink: 0; margin-top: 1px; }
 
   /* next */
-  .section-pause { display:flex; align-items:center; gap:14px; margin:32px 0; opacity:.35; }
+  .section-pause { display:flex; align-items:center; gap:14px; margin:40px 0; opacity:.5; }
   .section-pause-line { flex:1; height:1px; background:var(--text-dim); }
-  .section-pause-dot { width:5px; height:5px; border-radius:50%; background:var(--text-dim); flex-shrink:0; }
+  .section-pause-dot {
+    width:10px; height:10px; border-radius:50%;
+    background:transparent;
+    border:1.5px solid var(--calm);
+    flex-shrink:0;
+    position:relative;
+    animation:pauseDotPulse 6s ease-in-out infinite;
+  }
+  .section-pause-dot::after {
+    content:'';
+    position:absolute;
+    inset:-4px;
+    border-radius:50%;
+    background:rgba(79,195,161,0.15);
+    animation:pauseDotOuter 6s ease-in-out infinite;
+  }
+  @keyframes pauseDotPulse {
+    0%,100%{ transform:scale(0.8); border-color:rgba(79,195,161,0.5); }
+    50%{ transform:scale(1.15); border-color:rgba(79,195,161,1); }
+  }
+  @keyframes pauseDotOuter {
+    0%,100%{ transform:scale(0.6); opacity:0.3; }
+    50%{ transform:scale(1.4); opacity:0.7; }
+  }
   .next-wrap { margin-top: 14px; padding: 18px 22px; background: var(--surface); border: 1px solid rgba(255,255,255,.07); border-radius: 16px; }
   .next-hint { font-size: .82rem; color: var(--text-dim); margin-bottom: 10px; line-height: 1.5; }
   .next-btn { background: transparent; border: 1.5px solid var(--calm); color: var(--calm); border-radius: 12px; padding: 13px 22px; font-family: 'DM Sans', sans-serif; font-size: .95rem; font-weight: 500; cursor: pointer; transition: all .25s; display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center; }
@@ -709,6 +734,10 @@
   .mp-dot { display: flex; align-items: center; gap: 7px; padding: 6px 12px; border-radius: 99px; font-size: .78rem; border: 1px solid rgba(255,255,255,0.08); color: var(--text-dim); background: rgba(255,255,255,0.03); }
   .mp-dot.done { background: rgba(79,195,161,0.1); border-color: rgba(79,195,161,0.3); color: var(--calm); }
   .mp-dot.current { background: rgba(240,200,122,0.1); border-color: rgba(240,200,122,0.3); color: var(--accent); }
+
+  /* Info-boks — bruges i øvelsesmoduler */
+  .info-box { background:rgba(74,196,143,0.07);border:1px solid rgba(74,196,143,0.2);border-radius:12px;padding:16px 18px;margin:16px 0; }
+  .info-box-title { font-size:.82rem;font-weight:700;color:var(--calm);letter-spacing:.05em;margin-bottom:8px; }
 </style>
 </head>
 <body>
@@ -797,8 +826,6 @@
     </div>
   </div>
 </div>
-  </div>
-</div>
 
 <!-- ===================== LOGIN ===================== -->
 <div class="screen out gone" id="login-screen">
@@ -814,7 +841,7 @@
         <p id="login-desc" style="font-size:.92rem;color:var(--text);line-height:1.6;margin-bottom:14px">Din behandler har givet dig en personlig kode. Skriv den her for at komme i gang.</p>
         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
           <p id="consent-intro" style="font-size:.85rem;color:var(--text-dim);line-height:1.55;margin:0">Vi indsamler anonyme oplysninger om brug af siden for at forbedre behandlingen.</p>
-          <button onclick="toggleConsentDetails()" id="consent-details-toggle" style="background:none;border:none;color:var(--calm);font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer;padding:0;white-space:nowrap;flex-shrink:0;text-decoration:underline">Vis mere ↓</button>
+          <button onclick="toggleConsentDetails()" id="consent-details-toggle" style="background:none;border:none;color:var(--calm);font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer;padding:0;white-space:nowrap;flex-shrink:0;text-decoration:underline"><span class="show-more-label">Vis mere</span> ↓</button>
         </div>
       </div>
 
@@ -905,7 +932,7 @@
         <div class="kft-badge" style="margin-bottom:10px"><div class="psykia-circle-wrap"><div class="psykia-circle-outer"></div><div class="psykia-circle-inner"></div></div><span class="kft-badge-text">Psykia</span></div>
         <p id="ov-sub">Lær om dine udfordringer — i dit eget tempo.</p>
       </div>
-      <button class="lang-switch" onclick="goScreen('overview','lang')">
+      <button class="lang-switch" onclick="returnToLang()">
         <span id="cur-flag">🇩🇰</span><span id="ov-chlang">Skift sprog</span>
       </button>
     </div>
@@ -914,7 +941,7 @@
     <div style="margin-bottom:16px;padding:14px 16px;background:rgba(79,195,161,0.05);border:1px solid rgba(79,195,161,0.15);border-radius:12px">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
         <p id="w-t1" style="font-size:.88rem;color:var(--text-dim);margin:0;line-height:1.5">Velkommen til denne hjemmeside. Hjemmesiden vil hjælpe dig med at forstå dine udfordringer på dit modersmål.</p>
-        <button onclick="toggleWelcomeDetails()" id="welcome-details-toggle" style="background:none;border:none;color:var(--calm);font-family:'DM Sans',sans-serif;font-size:.8rem;cursor:pointer;padding:0 0 0 12px;white-space:nowrap;flex-shrink:0">Vis mere ↓</button>
+        <button onclick="toggleWelcomeDetails()" id="welcome-details-toggle" style="background:none;border:none;color:var(--calm);font-family:'DM Sans',sans-serif;font-size:.8rem;cursor:pointer;padding:0 0 0 12px;white-space:nowrap;flex-shrink:0"><span class="show-more-label">Vis mere</span> ↓</button>
       </div>
       <div id="welcome-details" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)">
         <p id="w-t2" style="font-size:.85rem;color:var(--text-dim);margin:0 0 10px;line-height:1.6">Din behandler vil sammen med dig finde ud af, hvilke afsnit der er særligt relevante for dig, men du må gerne gå så meget på opdagelse, som du har lyst til. Viden om din tilstand øger sandsynligheden for, at du kan få det bedre.</p>
@@ -923,7 +950,7 @@
     </div>
 
     <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
-      <button onclick="toggleAllSections()" id="expand-all-btn" style="background:none;border:none;font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--calm);cursor:pointer;padding:4px 0;letter-spacing:.3px">Vis alle moduler ↓</button>
+      <button onclick="toggleAllSections()" id="expand-all-btn" style="background:none;border:none;font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--calm);cursor:pointer;padding:4px 0;letter-spacing:.3px"><span id="expand-all-label">Vis alle moduler</span> <span id="expand-all-arrow">↓</span></button>
     </div>
 
     <!-- START HER -->
@@ -935,22 +962,59 @@
       <div class="acc-body">
         <div class="mod-row green" onclick="toggleModRow(this)">
           <div class="mod-row-icon green">👋</div>
-          <div class="mod-row-text"><div class="mod-row-label">Introduktion</div><div class="mod-row-title" id="m0t">Velkommen — hvad er PTSD?</div></div>
+          <div class="mod-row-text"><div class="mod-row-label label-intro">Introduktion</div><div class="mod-row-title" id="m0t">Velkommen — hvad er PTSD?</div></div>
           <span class="mod-row-arrow">›</span>
         </div>
-        <div class="mod-row-expand"><p>En introduktion til siden, hvad PTSD er, og hvorfor det hjælper at lære om sine udfordringer. Læs dette før de andre moduler.</p><button class="mod-start-btn" onclick="openModule('intro')">Start →</button><span class="mod-dur">⏱ 6–8 min</span></div>
+        <div class="mod-row-expand"><p class="mod-desc" data-desc-key="m0d">En introduktion til siden, hvad PTSD er, og hvorfor det hjælper at lære om sine udfordringer. Læs dette før de andre moduler.</p><button class="mod-start-btn mod-start" onclick="openModule('intro')">Start →</button><span class="mod-dur">⏱ 6–8 min</span></div>
         <div class="mod-row green" onclick="toggleModRow(this)">
           <div class="mod-row-icon green">🗺️</div>
-          <div class="mod-row-text"><div class="mod-row-label">Supplerende</div><div class="mod-row-title" id="mforl-t">Dit behandlingsforløb</div></div>
+          <div class="mod-row-text"><div class="mod-row-label label-supp">Supplerende</div><div class="mod-row-title" id="mforl-t">Dit behandlingsforløb</div></div>
           <span class="mod-row-arrow">›</span>
         </div>
-        <div class="mod-row-expand"><p>En introduktion til, hvad din behandling indeholder — og hvordan denne side er en del af dit forløb.</p><button class="mod-start-btn" onclick="openModule('forloeb')">Start →</button><span class="mod-dur">⏱ 4–6 min</span></div>
+        <div class="mod-row-expand"><p class="mod-desc" data-desc-key="mforl_d">En introduktion til, hvad din behandling indeholder — og hvordan denne side er en del af dit forløb.</p><button class="mod-start-btn mod-start" onclick="openModule('forloeb')">Start →</button><span class="mod-dur">⏱ 4–6 min</span></div>
         <div class="mod-row green" onclick="toggleModRow(this)">
           <div class="mod-row-icon green">💬</div>
-          <div class="mod-row-text"><div class="mod-row-label">Supplerende</div><div class="mod-row-title" id="mmot-t">Hvad vil du gerne have ud af behandlingen?</div></div>
+          <div class="mod-row-text"><div class="mod-row-label label-supp">Supplerende</div><div class="mod-row-title" id="mmot-t">Hvad vil du gerne have ud af behandlingen?</div></div>
           <span class="mod-row-arrow">›</span>
         </div>
-        <div class="mod-row-expand"><p>Skriv dine egne tanker om forventninger, bekymringer og håb. Brug det som forberedelse til din næste samtale.</p><button class="mod-start-btn" onclick="openModule('motivation')">Start →</button><span class="mod-dur">⏱ 5–10 min</span></div>
+        <div class="mod-row-expand"><p class="mod-desc" data-desc-key="mmot_d">Skriv dine egne tanker om forventninger, bekymringer og håb. Brug det som forberedelse til din næste samtale.</p><button class="mod-start-btn mod-start" onclick="openModule('motivation')">Start →</button><span class="mod-dur">⏱ 5–10 min</span></div>
+      </div>
+    </div>
+
+    <!-- ØVELSESMAPPE -->
+    <div class="accordion-section" id="acc-oevelser">
+      <button class="acc-header" onclick="toggleSection('acc-oevelser')">
+        <span class="acc-title" id="cat-oev">🌿 <span id="cat-oev-text">Øvelsesmappe</span></span>
+        <span class="acc-arrow">›</span>
+      </button>
+      <div class="acc-body">
+        <div id="oev-intro" style="padding:10px 14px 6px;font-size:.82rem;color:var(--text-dim);line-height:1.5">
+          Disse øvelser kan du bruge, når du har det svært — eller som en daglig rutine. Du behøver ikke læse dem fra ende til anden. Find den øvelse der passer til dig lige nu.
+        </div>
+        <div class="mod-row green" onclick="toggleModRow(this)">
+          <div class="mod-row-icon green">🌬️</div>
+          <div class="mod-row-text"><div class="mod-row-label label-oev">Øvelse</div><div class="mod-row-title" id="moev1-t">Pust roligt</div></div>
+          <span class="mod-row-arrow">›</span>
+        </div>
+        <div class="mod-row-expand"><p class="mod-desc" data-desc-key="moev1_d">To beroligende vejrtrækningsøvelser med animation. Brug dem til at dæmpe angst og bringe nervesystemet ned i gear.</p><button class="mod-start-btn mod-start" onclick="openModule('vejrtrae')">Start →</button><span class="mod-dur">⏱ 3–8 min</span></div>
+        <div class="mod-row green" onclick="toggleModRow(this)">
+          <div class="mod-row-icon green">🕊️</div>
+          <div class="mod-row-text"><div class="mod-row-label label-oev">Øvelse</div><div class="mod-row-title" id="moev2-t">Mit trygge sted</div></div>
+          <span class="mod-row-arrow">›</span>
+        </div>
+        <div class="mod-row-expand"><p class="mod-desc" data-desc-key="moev2_d">En guidet visualiseringsøvelse. Bring et trygt sted eller en person frem i tankerne — og mærk hvad der sker i kroppen.</p><button class="mod-start-btn mod-start" onclick="openModule('trygsted')">Start →</button><span class="mod-dur">⏱ 5–8 min</span></div>
+        <div class="mod-row green" onclick="toggleModRow(this)">
+          <div class="mod-row-icon green">🌱</div>
+          <div class="mod-row-text"><div class="mod-row-label label-oev">Øvelse</div><div class="mod-row-title" id="moev3-t">Land her og nu</div></div>
+          <span class="mod-row-arrow">›</span>
+        </div>
+        <div class="mod-row-expand"><p class="mod-desc" data-desc-key="moev3_d">Når tankerne løber af sted eller kroppen føles langt væk — brug bevægelse og sanserne til at lande her og nu.</p><button class="mod-start-btn mod-start" onclick="openModule('grounding')">Start →</button><span class="mod-dur">⏱ 3–6 min</span></div>
+        <div class="mod-row green" onclick="toggleModRow(this)">
+          <div class="mod-row-icon green">🙏</div>
+          <div class="mod-row-text"><div class="mod-row-label label-oev">Øvelse</div><div class="mod-row-title" id="moev4-t">Et øjebliks ro</div></div>
+          <span class="mod-row-arrow">›</span>
+        </div>
+        <div class="mod-row-expand"><p class="mod-desc" data-desc-key="moev4_d">En øvelse der kombinerer langsomt åndedræt med stilhed og taknemmelighed — for dem der finder styrke i bøn eller fordybelse.</p><button class="mod-start-btn mod-start" onclick="openModule('aandero')">Start →</button><span class="mod-dur">⏱ 5–10 min</span></div>
       </div>
     </div>
 
@@ -966,43 +1030,43 @@
           <div class="mod-row-text"><div class="mod-row-label">Modul 1</div><div class="mod-row-title" id="m1t">Dit nervesystem</div></div>
           <span class="mod-row-arrow">›</span>
         </div>
-        <div class="mod-row-expand"><p>Forstå hvad nervesystemet er, hvordan det reagerer på fare, og hvad der hjælper det til ro.</p><button class="mod-start-btn" onclick="openModule('nervesystem')">Start →</button><span class="mod-dur">⏱ 8–10 min</span></div>
+        <div class="mod-row-expand"><p class="mod-desc" data-desc-key="m1d">Forstå hvad nervesystemet er, hvordan det reagerer på fare, og hvad der hjælper det til ro.</p><button class="mod-start-btn mod-start" onclick="openModule('nervesystem')">Start →</button><span class="mod-dur">⏱ 8–10 min</span></div>
         <div class="mod-row green" onclick="toggleModRow(this)">
           <div class="mod-row-icon green">💭</div>
           <div class="mod-row-text"><div class="mod-row-label">Modul 2</div><div class="mod-row-title" id="m2t">Angst, minder og genoplevelser</div></div>
           <span class="mod-row-arrow">›</span>
         </div>
-        <div class="mod-row-expand"><p>Om bevidste og ubevidste tanker, hvad angst er, og hvorfor hjernen kan spille minder tilbage som om de sker nu.</p><button class="mod-start-btn" onclick="openModule('angst')">Start →</button><span class="mod-dur">⏱ 8–10 min</span></div>
+        <div class="mod-row-expand"><p class="mod-desc" data-desc-key="m2d">Om bevidste og ubevidste tanker, hvad angst er, og hvorfor hjernen kan spille minder tilbage som om de sker nu.</p><button class="mod-start-btn mod-start" onclick="openModule('angst')">Start →</button><span class="mod-dur">⏱ 8–10 min</span></div>
         <div class="mod-row green" onclick="toggleModRow(this)">
           <div class="mod-row-icon green">🚪</div>
           <div class="mod-row-text"><div class="mod-row-label">Modul 3</div><div class="mod-row-title" id="m3t">Undgåelse og eksponering</div></div>
           <span class="mod-row-arrow">›</span>
         </div>
-        <div class="mod-row-expand"><p>Hvorfor vi undgår mere og mere, hvordan undgåelse vedligeholder angsten — og hvordan du kan vinde din frihed tilbage.</p><button class="mod-start-btn" onclick="openModule('undgaaelse')">Start →</button><span class="mod-dur">⏱ 8–10 min</span></div>
+        <div class="mod-row-expand"><p class="mod-desc" data-desc-key="m3d">Hvorfor vi undgår mere og mere, hvordan undgåelse vedligeholder angsten — og hvordan du kan vinde din frihed tilbage.</p><button class="mod-start-btn mod-start" onclick="openModule('undgaaelse')">Start →</button><span class="mod-dur">⏱ 8–10 min</span></div>
         <div class="mod-row amber" onclick="toggleModRow(this)">
           <div class="mod-row-icon amber">🌪️</div>
           <div class="mod-row-text"><div class="mod-row-label">Modul 4</div><div class="mod-row-title" id="m4t">Traumer og kontroltab</div></div>
           <span class="mod-row-arrow">›</span>
         </div>
-        <div class="mod-row-expand"><p>Om hvad traumer er, hvorfor magtesløshed er så smertefuld — og hvordan sorg og erkendelse er første skridt mod heling.</p><button class="mod-start-btn" onclick="openModule('kontroltab')">Start →</button><span class="mod-dur">⏱ 9–11 min</span></div>
+        <div class="mod-row-expand"><p class="mod-desc" data-desc-key="m4d">Om hvad traumer er, hvorfor magtesløshed er så smertefuld — og hvordan sorg og erkendelse er første skridt mod heling.</p><button class="mod-start-btn mod-start" onclick="openModule('kontroltab')">Start →</button><span class="mod-dur">⏱ 9–11 min</span></div>
         <div class="mod-row amber" onclick="toggleModRow(this)">
           <div class="mod-row-icon amber">🌧️</div>
           <div class="mod-row-text"><div class="mod-row-label">Modul 5</div><div class="mod-row-title" id="m5dep">Depression og nedtrykthed</div></div>
           <span class="mod-row-arrow">›</span>
         </div>
-        <div class="mod-row-expand"><p>Hvorfor PTSD og depression så ofte følges ad — hvad depression er, og hvad der hjælper.</p><button class="mod-start-btn" onclick="openModule('depression')">Start →</button><span class="mod-dur">⏱ 8–10 min</span></div>
+        <div class="mod-row-expand"><p class="mod-desc" data-desc-key="m5depd">Hvorfor PTSD og depression så ofte følges ad — hvad depression er, og hvad der hjælper.</p><button class="mod-start-btn mod-start" onclick="openModule('depression')">Start →</button><span class="mod-dur">⏱ 8–10 min</span></div>
         <div class="mod-row blue" onclick="toggleModRow(this)">
           <div class="mod-row-icon blue">💊</div>
           <div class="mod-row-text"><div class="mod-row-label">Modul 6</div><div class="mod-row-title" id="m8t">Medicin og behandling</div></div>
           <span class="mod-row-arrow">›</span>
         </div>
-        <div class="mod-row-expand"><p>Om medicin som støtte — ikke løsning. Hvad det kan, hvad det ikke kan, og hvordan du finder ud af, om det er noget for dig.</p><button class="mod-start-btn" onclick="openModule('medicin')">Start →</button><span class="mod-dur">⏱ 8–10 min</span></div>
+        <div class="mod-row-expand"><p class="mod-desc" data-desc-key="m8d">Om medicin som støtte — ikke løsning. Hvad det kan, hvad det ikke kan, og hvordan du finder ud af, om det er noget for dig.</p><button class="mod-start-btn mod-start" onclick="openModule('medicin')">Start →</button><span class="mod-dur">⏱ 8–10 min</span></div>
         <div class="mod-row calm-row" onclick="toggleModRow(this)">
           <div class="mod-row-icon green">🔍</div>
-          <div class="mod-row-text"><div class="mod-row-label" style="color:var(--calm)">Midtvejsrefleksion</div><div class="mod-row-title">Hvad har du lært — og hvad er stadig svært?</div></div>
+          <div class="mod-row-text"><div class="mod-row-label" style="color:var(--calm)" id="mmidt-label">Midtvejsrefleksion</div><div class="mod-row-title" id="mmidt-t">Hvad har du lært — og hvad er stadig svært?</div></div>
           <span class="mod-row-arrow">›</span>
         </div>
-        <div class="mod-row-expand"><p>En pause til at samle op. Hvad har du genkendt fra de første moduler? Hvad vil du tale med din behandler om?</p><button class="mod-start-btn" onclick="openModule('midtvej')">Start →</button><span class="mod-dur">⏱ 8–12 min</span></div>
+        <div class="mod-row-expand"><p class="mod-desc" data-desc-key="mmidt_d">En pause til at samle op. Hvad har du genkendt fra de første moduler? Hvad vil du tale med din behandler om?</p><button class="mod-start-btn mod-start" onclick="openModule('midtvej')">Start →</button><span class="mod-dur">⏱ 8–12 min</span></div>
       </div>
     </div>
 
@@ -1018,7 +1082,7 @@
           <div class="mod-row-text"><div class="mod-row-label">Modul 7</div><div class="mod-row-title" id="m5t">Søvn og mareridt</div></div>
           <span class="mod-row-arrow">›</span>
         </div>
-        <div class="mod-row-expand"><p>Hvorfor søvnen forstyrres ved PTSD, hvad mareridt er — og hvad der faktisk hjælper.</p><button class="mod-start-btn" onclick="openModule('sovn')">Start →</button><span class="mod-dur">⏱ 8–10 min</span></div>
+        <div class="mod-row-expand"><p class="mod-desc" data-desc-key="m5d">Hvorfor søvnen forstyrres ved PTSD, hvad mareridt er — og hvad der faktisk hjælper.</p><button class="mod-start-btn mod-start" onclick="openModule('sovn')">Start →</button><span class="mod-dur">⏱ 8–10 min</span></div>
         <div class="locked-row"><div class="mod-row-icon blue">🧩</div><div class="mod-row-text"><div class="mod-row-label">Modul 8</div><div class="mod-row-title" id="m6t">Koncentration og hukommelse</div></div><span class="mod-row-lock">🔒</span></div>
         <div class="locked-row"><div class="mod-row-icon blue">🫀</div><div class="mod-row-text"><div class="mod-row-label">Modul 9</div><div class="mod-row-title" id="m7t">Krop og smerte</div></div><span class="mod-row-lock">🔒</span></div>
         <div class="locked-row"><div class="mod-row-icon amber">🔄</div><div class="mod-row-text"><div class="mod-row-label">Modul 10</div><div class="mod-row-title" id="m12t">Misbrug og selvmedicinering</div></div><span class="mod-row-lock">🔒</span></div>
@@ -1036,7 +1100,7 @@
         <div class="locked-row"><div class="mod-row-icon amber">🤝</div><div class="mod-row-text"><div class="mod-row-label">Modul 12</div><div class="mod-row-title" id="m10t">Relationer, tillid og social undgåelse</div></div><span class="mod-row-lock">🔒</span></div>
         <div class="locked-row"><div class="mod-row-icon amber">🫂</div><div class="mod-row-text"><div class="mod-row-label">Modul 13</div><div class="mod-row-title" id="m11t">Intimitet og nærhed</div></div><span class="mod-row-lock">🔒</span></div>
         <div class="locked-row"><div class="mod-row-icon blue">🏡</div><div class="mod-row-text"><div class="mod-row-label">Modul 14</div><div class="mod-row-title" id="m13t">Hverdagsrutiner</div></div><span class="mod-row-lock">🔒</span></div>
-        <div class="locked-row"><div class="mod-row-icon green">🌱</div><div class="mod-row-text"><div class="mod-row-label" style="color:var(--calm)">Afslutningsrefleksion</div><div class="mod-row-title">Hvad tager du med dig — og hvad nu?</div></div><span class="mod-row-lock">🔒</span></div>
+        <div class="locked-row"><div class="mod-row-icon green">🌱</div><div class="mod-row-text"><div class="mod-row-label" style="color:var(--calm)" id="mafsl-label">Afslutningsrefleksion</div><div class="mod-row-title" id="mafsl-t">Hvad tager du med dig — og hvad nu?</div></div><span class="mod-row-lock">🔒</span></div>
       </div>
     </div>
 
@@ -1098,6 +1162,8 @@
       </div>
     </section>
 
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
     <!-- S1 -->
     <section id="s1">
       <div class="content">
@@ -1139,6 +1205,8 @@
         </div>
 </div>
     </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 
     <!-- S2 -->
     <section id="s2">
@@ -1188,6 +1256,8 @@
 </div>
     </section>
 
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
     <!-- S3 -->
     <section id="s3">
       <div class="content">
@@ -1230,6 +1300,8 @@
 </div>
     </section>
 
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
     <!-- S4 -->
     <section id="s4">
       <div class="content">
@@ -1271,6 +1343,8 @@
         </div>
 </div>
     </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 
     <!-- S5 -->
     <section id="s5">
@@ -1393,6 +1467,8 @@
       </div>
     </section>
 
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
     <!-- M2-S1: TANKER -->
     <section id="m2s1">
       <div class="content">
@@ -1440,6 +1516,8 @@
         </div>
 </div>
     </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 
     <!-- M2-S2: ANGST -->
     <section id="m2s2">
@@ -1511,6 +1589,8 @@
 </div>
     </section>
 
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
     <!-- M2-S3: FLASHBACKS -->
     <section id="m2s3">
       <div class="content">
@@ -1567,6 +1647,8 @@
         </div>
 </div>
     </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 
     <!-- M2-S4: GROUNDING + AFSLUTNING -->
     <section id="m2s4">
@@ -1735,6 +1817,8 @@
       </div>
     </section>
 
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
     <!-- M3-S1: UNDGÅELSE ER NATURLIGT -->
     <section id="m3s1">
       <div class="content">
@@ -1804,6 +1888,8 @@
         </div>
 </div>
     </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 
     <!-- M3-S2: EKSPONERING -->
     <section id="m3s2">
@@ -1912,6 +1998,8 @@
 </div>
     </section>
 
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
     <!-- M3-S3: TRAPPE -->
     <section id="m3s3">
       <div class="content">
@@ -2019,6 +2107,8 @@
         </div>
 </div>
     </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 
     <!-- M3-S4: AFSLUTNING -->
     <section id="m3s4">
@@ -2172,6 +2262,8 @@
       </div>
     </section>
 
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
     <!-- M4-S1: HVAD ER ET TRAUME -->
     <section id="m4s1">
       <div class="content">
@@ -2224,6 +2316,8 @@
         </div>
 </div>
     </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 
     <!-- M4-S2: SKYLD OG KONTROLILLUSION -->
     <section id="m4s2">
@@ -2286,6 +2380,8 @@
 </div>
     </section>
 
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
     <!-- M4-S3: SORG OG HELING -->
     <section id="m4s3">
       <div class="content">
@@ -2340,6 +2436,8 @@
         </div>
 </div>
     </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 
     <!-- M4-S4: AFSLUTNING -->
     <section id="m4s4">
@@ -2409,9 +2507,9 @@
 <script>
 // ===================== TRANSLATIONS =====================
 const T = {
-  da: { wTitle:'Velkommen', wT1:'Velkommen til denne hjemmeside. Hjemmesiden vil hjælpe dig med at forstå dine udfordringer på dit eget sprog', wT2:'Husk altid at spørge din behandler, hvis du er i tvivl om noget, du læser herinde.', wBtn:'Se alle emner', ovTitle:'Psykia', ovSub:'Lær om dine udfordringer — i dit eget tempo.', ovIntro:'', chLang:'Skift sprog', cat0:'Start her', cat1:'Fase 1 · Forstå hvad der sker', cat2:'Fase 2 · Krop og søvn', cat3:'Fase 3 · Følelser og relationer', avail:'Tilgængelig', soon:'Kommer snart', back:'Tilbage til oversigt', flag:'🇩🇰',
+  da: { wTitle:'Velkommen', wT1:'Velkommen til denne hjemmeside. Hjemmesiden vil hjælpe dig med at forstå dine udfordringer på dit eget sprog', wT2:'Husk altid at spørge din behandler, hvis du er i tvivl om noget, du læser herinde.', wBtn:'Se alle emner', ovTitle:'Psykia', ovSub:'Lær om dine udfordringer — i dit eget tempo.',showMore:'Vis mere',showLess:'Skjul',expandAll:'Vis alle moduler',collapseAll:'Skjul alle moduler',exerciseFolder:'Øvelsesmappe',oevIntro:'Disse øvelser kan du bruge, når du har det svært — eller som en daglig rutine. Du behøver ikke læse dem fra ende til anden. Find den øvelse der passer til dig lige nu.',lblIntro:'Introduktion',lblSupp:'Supplerende',lblOev:'Øvelse', ovIntro:'', chLang:'Skift sprog', cat0:'Start her', cat1:'Fase 1 · Forstå hvad der sker', cat2:'Fase 2 · Krop og søvn', cat3:'Fase 3 · Følelser og relationer', avail:'Tilgængelig', soon:'Kommer snart', back:'Tilbage til oversigt', flag:'🇩🇰',
     loginKlinik:'Psykia', loginTitle:'Log ind', loginDesc:'Din behandler har givet dig en personlig kode. Skriv den her for at komme i gang.', loginCodeLabel:'Din kode', loginBtn:'Fortsæt', loginError:'Koden blev ikke genkendt. Tjek at du har tastet den rigtigt, eller spørg din behandler.', loginMockNotice:'I den kliniske version valideres koden mod klinikkens system. Indtast en vilkårlig kode for at demonstrere flowet.',
-    consentKlinik:'Psykia', consentTitle:'Inden du begynder', consentIntro:'Vi vil gerne indsamle anonyme oplysninger om, hvordan du bruger siden. Det hjælper os med at forbedre behandlingen for dig og andre.', consentItem1Title:'Brug af moduler', consentItem1Desc:'Vi registrerer hvilke moduler du åbner, og hvor lang tid du bruger på dem. Oplysningerne er knyttet til din anonyme kode — ikke dit navn.', consentItem2Title:'Dine data er beskyttede', consentItem2Desc:'Siden kender ikke dit navn eller din diagnose. Kun din behandler kan koble din kode til dine øvrige helbredsoplysninger.', consentItem3Title:'Du kan altid trække dit samtykke tilbage', consentItem3Desc:'Tal med din behandler, hvis du ikke ønsker at dine data bruges. Du kan stadig bruge siden.', consentNote:'Brug af siden er frivilligt og påvirker ikke din behandling.', consentCheckboxLabel:'Jeg har læst og forstået ovenstående og giver samtykke til indsamling af anonyme brugsdata.', consentBtnText:'Jeg accepterer og vil gerne begynde', consentSkip:'Jeg ønsker ikke at bidrage med data — brug siden uden registrering',
+    consentKlinik:'Psykia', consentTitle:'Inden du begynder', consentIntro:'Vi vil gerne indsamle anonyme oplysninger om, hvordan du bruger siden. Det hjælper os med at forbedre behandlingen for dig og andre.', consentItem1Title:'Brug af moduler', consentItem1Desc:'Vi registrerer hvilke moduler du åbner, og hvor lang tid du bruger på dem. Oplysningerne er knyttet til din anonyme kode — ikke dit navn.', consentItem2Title:'Dine data er beskyttede', consentItem2Desc:'Siden kender ikke dit navn eller din diagnose. Kun din behandler kan koble din kode til dine øvrige helbredsoplysninger.', consentItem3Title:'Du kan altid trække dit samtykke tilbage', consentItem3Desc:'Tal med din behandler, hvis du ikke ønsker at dine data bruges. Du kan stadig bruge siden.', consentNote:'Brug af siden er frivilligt og påvirker ikke din behandling.', consentCheckboxLabel:'Jeg har læst og forstået ovenstående og giver samtykke til indsamling af anonyme brugsdata.', consentBtnText:'Jeg accepterer og vil gerne begynde', consentSkip:'Jeg ønsker ikke at bidrage med data — brug siden uden registrering',readAloud:'Læs op',readSection:'Læs afsnit op',startBtn:'Start',stopBtn:'Stop',mforl_d:'En introduktion til, hvad din behandling indeholder — og hvordan denne side er en del af dit forløb.',mmot_d:'Skriv dine egne tanker om forventninger, bekymringer og håb. Brug det som forberedelse til din næste samtale.',moev1_d:'To beroligende vejrtrækningsøvelser med animation. Brug dem til at dæmpe angst og bringe nervesystemet ned i gear.',moev2_d:'En guidet visualiseringsøvelse. Bring et trygt sted eller en person frem i tankerne — og mærk hvad der sker i kroppen.',moev3_d:'Når tankerne løber af sted eller kroppen føles langt væk — brug bevægelse og sanserne til at lande her og nu.',moev4_d:'En øvelse der kombinerer langsomt åndedræt med stilhed og taknemmelighed — for dem der finder styrke i bøn eller fordybelse.',mmidt_d:'En pause til at samle op. Hvad har du genkendt fra de første moduler? Hvad vil du tale med din behandler om?',m5depd:'Hvorfor PTSD og depression så ofte følges ad — hvad depression er, og hvad der hjælper.',
     m0t:'Velkommen — hvad er PTSD?', m0d:'En introduktion til siden, hvad PTSD er, og hvorfor det hjælper at lære om sine udfordringer. Læs dette før de andre moduler.',
     m1t:'Dit nervesystem', m1d:'Forstå hvad nervesystemet er, hvordan det reagerer på fare, og hvad der hjælper det til ro.',
     m2t:'Angst, minder og genoplevelser', m2d:'Om bevidste og ubevidste tanker, hvad angst er, og hvorfor hjernen kan spille minder tilbage som om de sker nu.',
@@ -2426,14 +2524,14 @@ const T = {
     m10t:'Relationer, tillid og social undgåelse', m10d:'Hvordan traumer påvirker forholdet til andre og vejen tilbage til kontakt.',
     m11t:'Intimitet og nærhed', m11d:'Hvorfor nærhed kan føles svært efter traumer — og hvordan man nærmer sig det igen.',
     m12t:'Misbrug og selvmedicinering', m12d:'Om sammenhængen mellem traumer og misbrug — og hvad der hjælper bedre.',
-    m13t:'Hverdagsrutiner', m13d:'Strukturens rolle i at skabe tryghed, når hverdagen føles overvældende.'
+    m13t:'Hverdagsrutiner', m13d:'Strukturens rolle i at skabe tryghed, når hverdagen føles overvældende.','m0t_full':'Velkommen — hvad er PTSD?','mforl-t':'Dit behandlingsforløb','mmot-t':'Hvad vil du gerne have ud af behandlingen?','moev1-t':'Pust roligt','moev2-t':'Mit trygge sted','moev3-t':'Land her og nu','moev4-t':'Et øjebliks ro','mmidt-label':'Midtvejsrefleksion','mmidt-t':'Hvad har du lært — og hvad er stadig svært?','mafsl-label':'Afslutningsrefleksion','mafsl-t':'Hvad tager du med dig — og hvad nu?'
   },
   en: {
     flag:'🇬🇧', chLang:'Change language',
     wTitle:'Welcome', wBtn:'See all topics',
-    wT1:'Welcome to this website. This website will help you understand your challenges in your own language and can support you while you are in treatment at the Clinic for Traumatised Refugees.',
+    wT1:'Welcome to this website. This website will help you understand your challenges in your own language.',
     wT2:'Always remember to ask your therapist if you are unsure about anything you read here.',
-    ovTitle:'Psykia', ovSub:'Learn about your challenges — at your own pace.',
+    ovTitle:'Psykia', ovSub:'Learn about your challenges — at your own pace.',showMore:'Show more',showLess:'Hide',expandAll:'Show all modules',collapseAll:'Hide all modules',exerciseFolder:'Exercises',oevIntro:'You can use these exercises when things feel difficult — or as a daily routine. You don\'t need to read them in order. Find the one that fits you right now.',lblIntro:'Introduction',lblSupp:'Supplementary',lblOev:'Exercise',
     ovIntro:'',
     cat0:'Start here', cat1:'Phase 1 · Understanding what is happening', cat2:'Phase 2 · Body and sleep', cat3:'Phase 3 · Emotions and relationships',
     avail:'Available', soon:'Coming soon', back:'Back to overview',
@@ -2451,7 +2549,7 @@ const T = {
     consentNote:'Use of this site is voluntary and does not affect your treatment.',
     consentCheckboxLabel:'I have read and understood the above and consent to the collection of anonymous usage data.',
     consentBtnText:'I accept and would like to begin',
-    consentSkip:'I do not wish to contribute data — use the site without registration',
+    consentSkip:'I do not wish to contribute data — use the site without registration',readAloud:'Read aloud',readSection:'Read this section',startBtn:'Start',stopBtn:'Stop',mforl_d:'An introduction to what your treatment includes — and how this site is part of your journey.',mmot_d:'Write your own thoughts about expectations, worries and hopes. Use it to prepare for your next session.',moev1_d:'Two calming breathing exercises with animation. Use them to ease anxiety and bring the nervous system down a gear.',moev2_d:'A guided visualisation exercise. Bring a safe place or a loved person to mind — and notice what happens in your body.',moev3_d:'When thoughts race or the body feels far away — use movement and senses to land here and now.',moev4_d:'An exercise combining slow breathing with stillness and gratitude — for those who find strength in prayer or contemplation.',mmidt_d:'A pause to gather what you have learned. What did you recognise from the first modules? What would you like to discuss with your therapist?',m5depd:'Why PTSD and depression so often go hand in hand — what depression is, and what helps.',
     m0t:'Welcome — what is PTSD?',
     m1t:'Your nervous system', m2t:'Anxiety, memories and flashbacks', m3t:'Avoidance and exposure',
     m4t:'Trauma and loss of control', m5t:'Sleep and nightmares', m5dep:'Depression and low mood',
@@ -2459,9 +2557,11 @@ const T = {
     m9t:'Strong emotions', m10t:'Relationships, trust and social avoidance',
     m11t:'Intimacy and closeness', m12t:'Substance use and self-medication',
     m13t:'Daily routines',
-    'mforl-t':'Your treatment journey', 'mmot-t':'What would you like to get out of treatment?'
+    'mforl-t':'Your treatment journey', 'mmot-t':'What would you like to get out of treatment?','mforl-t':'Your treatment journey','mmot-t':'What would you like to get out of treatment?','moev1-t':'Breathe calmly','moev2-t':'My safe place','moev3-t':'Land here and now','moev4-t':'A moment of stillness','mmidt-label':'Mid-way reflection','mmidt-t':'What have you learned — and what is still difficult?','mafsl-label':'Closing reflection','mafsl-t':'What are you taking with you — and what now?'
   },
-  uk: { wTitle:'Ласкаво просимо', wT1:'Ласкаво просимо на цей веб-сайт. Цей веб-сайт допоможе вам зрозуміти свої труднощі вашою мовою і може підтримати вас під час лікування в Клініці для біженців з травматичним досвідом.', wT2:'Завжди запитуйте свого лікаря, якщо вам щось незрозуміло з прочитаного тут.', wBtn:'Переглянути всі теми', ovTitle:'Оберіть тему', ovSub:'Натисніть на модуль, щоб почати.', ovIntro:'Кожен модуль займає 5–10 хвилин для читання. Ви можете зупинитися будь-коли і продовжити іншого дня.', chLang:'Змінити мову', cat0:'Почніть тут', cat1:'Тіло і нервова система', cat2:'Травма і реакції', cat3:'Повсякденне життя і стосунки', avail:'Доступно', soon:'Незабаром', back:'Повернутися до огляду', flag:'🇺🇦',
+  uk: { wTitle:'Ласкаво просимо', wT1:'Ласкаво просимо на цей веб-сайт. Цей веб-сайт допоможе вам зрозуміти свої труднощі вашою мовою.', wT2:'Завжди запитуйте свого лікаря, якщо вам щось незрозуміло з прочитаного тут.', wBtn:'Переглянути всі теми', ovTitle:'Оберіть тему', ovSub:'Дізнайтеся про свої труднощі — у своєму темпі.',showMore:'Показати більше',showLess:'Сховати',expandAll:'Показати всі модулі',collapseAll:'Сховати всі модулі',exerciseFolder:'Вправи',oevIntro:'Ці вправи можна використовувати, коли вам важко — або як щоденну практику. Не обов\'язково проходити їх по порядку. Знайдіть ту, що підходить вам зараз.',lblIntro:'Вступ',lblSupp:'Додатково',lblOev:'Вправа', ovIntro:'Кожен модуль займає 5–10 хвилин для читання. Ви можете зупинитися будь-коли і продовжити іншого дня.', chLang:'Змінити мову', cat0:'Почніть тут', cat1:'Тіло і нервова система', cat2:'Травма і реакції', cat3:'Повсякденне життя і стосунки', avail:'Доступно', soon:'Незабаром', back:'Повернутися до огляду', flag:'🇺🇦',
+    loginKlinik:'Psykia', loginTitle:'Увійти', loginDesc:'Ваш лікар дав вам особистий код. Введіть його тут, щоб розпочати.', loginCodeLabel:'Ваш код', loginBtn:'Продовжити', loginError:'Код не розпізнано. Перевірте правильність введення або запитайте у свого лікаря.', loginMockNotice:'У клінічній версії код перевіряється в системі клініки. Введіть будь-який код для демонстрації.',
+    consentKlinik:'Psykia', consentTitle:'Перш ніж почати', consentIntro:'Ми хотіли б збирати анонімну інформацію про використання сайту, щоб покращити лікування.', consentItem1Title:'Використання модулів', consentItem1Desc:"Ми реєструємо, які модулі ви відкриваєте і скільки часу витрачаєте. Дані пов'язані з вашим анонімним кодом — не з вашим ім'ям.", consentItem2Title:'Ваші дані захищені', consentItem2Desc:'Сайт не знає вашого імені чи діагнозу. Лише ваш лікар може пов\'язати код з вашими медичними даними.', consentItem3Title:'Ви завжди можете відкликати згоду', consentItem3Desc:'Поговоріть з лікарем, якщо не хочете, щоб ваші дані використовувалися. Ви все одно можете користуватися сайтом.', consentNote:'Використання сайту є добровільним і не впливає на ваше лікування.', consentCheckboxLabel:'Я прочитав(ла) і зрозумів(ла) вищесказане та даю згоду на збір анонімних даних.', consentBtnText:'Я приймаю і хочу почати', consentSkip:'Я не хочу передавати дані — використовувати сайт без реєстрації',readAloud:'Прочитати вголос',readSection:'Прочитати розділ',startBtn:'Почати',stopBtn:'Стоп',mforl_d:'Знайомство з тим, що включає ваше лікування — і як цей сайт є частиною вашого шляху.',mmot_d:'Запишіть свої думки про очікування, тривоги та надії. Використовуйте це для підготовки до наступної зустрічі.',moev1_d:'Дві заспокійливі дихальні вправи з анімацією. Використовуйте їх, щоб зменшити тривогу та заспокоїти нервову систему.',moev2_d:'Керована вправа візуалізації. Уявіть безпечне місце або близьку людину — і відчуйте, що відбувається в тілі.',moev3_d:'Коли думки розбігаються або тіло здається далеким — використовуйте рух і відчуття, щоб повернутися у тут і зараз.',moev4_d:'Вправа, що поєднує повільне дихання з тишею і вдячністю — для тих, хто знаходить силу в молитві чи зосередженні.',mmidt_d:'Пауза, щоб зібратися з думками. Що ви впізнали з перших модулів? Про що ви хотіли б поговорити зі своїм лікарем?',m5depd:'Чому ПТСР і депресія часто йдуть разом — що таке депресія, і що допомагає.',
     m0t:'Ласкаво просимо — що таке ПТСР?', m0d:'Вступ до сайту, що таке ПТСР і чому вивчення своїх труднощів допомагає. Прочитайте це перед іншими модулями.',
     m1t:'Ваша нервова система', m1d:'Зрозумійте, що таке нервова система, як вона реагує на небезпеку і що допомагає їй заспокоїтися.',
     m2t:'Тривога, спогади та флешбеки', m2d:'Про свідомі та несвідомі думки, що таке тривога, і чому мозок може відтворювати спогади так, ніби вони відбуваються зараз.',
@@ -2470,9 +2570,11 @@ const T = {
     m5t:'Сон і нічні кошмари', m5d:'Чому сон порушується при ПТСР, що таке нічні кошмари — і що насправді допомагає.',
     m6t:'Сильні емоції', m6d:'Розуміння і управління інтенсивними емоціями в повсякденному житті.',
     m7t:'Стосунки і довіра', m7d:'Як травма може впливати на стосунки з іншими людьми і що може допомогти.',
-    m8t:'Щоденні ритуали', m8d:'Роль структури у створенні безпеки, коли повсякденне життя здається переважним.'
+    m8t:'Щоденні ритуали', m8d:'Роль структури у створенні безпеки, коли повсякденне життя здається переважним.','mforl-t':'Ваш шлях лікування','mmot-t':'Що ви хотіли б отримати від лікування?','moev1-t':'Дихайте спокійно','moev2-t':'Моє безпечне місце','moev3-t':'Приземліться тут і зараз','moev4-t':'Мить тиші','mmidt-label':'Проміжна рефлексія','mmidt-t':'Що ви дізналися — і що все ще важко?','mafsl-label':'Завершальна рефлексія','mafsl-t':'Що ви берете з собою — і що далі?'
   },
-  ar: { wTitle:'مرحباً بك', wT1:'مرحباً بك في هذا الموقع. سيساعدك هذا الموقع على فهم تحدياتك بلغتك الخاصة، ويمكن أن يدعمك أثناء تلقيك العلاج في عيادة اللاجئين المصابين بصدمات نفسية.', wT2:'تذكر دائماً أن تسأل معالجك إذا كنت غير متأكد من أي شيء تقرأه هنا.', wBtn:'عرض جميع المواضيع', ovTitle:'اختر موضوعاً', ovSub:'انقر على وحدة للبدء.', ovIntro:'كل وحدة تستغرق 5–10 دقائق للقراءة. يمكنك التوقف في أي وقت والمتابعة في يوم آخر.', chLang:'تغيير اللغة', cat0:'ابدأ هنا', cat1:'الجسم والجهاز العصبي', cat2:'الصدمة والردود', cat3:'الحياة اليومية والعلاقات', avail:'متاح', soon:'قريباً', back:'العودة إلى النظرة العامة', flag:'🇸🇦',
+  ar: { wTitle:'مرحباً بك', wT1:'مرحباً بك في هذا الموقع. سيساعدك هذا الموقع على فهم تحدياتك بلغتك الخاصة.', wT2:'تذكر دائماً أن تسأل معالجك إذا كنت غير متأكد من أي شيء تقرأه هنا.', wBtn:'عرض جميع المواضيع', ovTitle:'اختر موضوعاً', ovSub:'تعرّف على تحدياتك — بإيقاعك الخاص.',showMore:'عرض المزيد',showLess:'إخفاء',expandAll:'عرض جميع الوحدات',collapseAll:'إخفاء جميع الوحدات',exerciseFolder:'تمارين',oevIntro:'يمكنك استخدام هذه التمارين عندما تشعر بالصعوبة — أو كروتين يومي. لا تحتاج لقراءتها بالترتيب. ابحث عن التمرين الذي يناسبك الآن.',lblIntro:'مقدمة',lblSupp:'إضافي',lblOev:'تمرين', ovIntro:'كل وحدة تستغرق 5–10 دقائق للقراءة. يمكنك التوقف في أي وقت والمتابعة في يوم آخر.', chLang:'تغيير اللغة', cat0:'ابدأ هنا', cat1:'الجسم والجهاز العصبي', cat2:'الصدمة والردود', cat3:'الحياة اليومية والعلاقات', avail:'متاح', soon:'قريباً', back:'العودة إلى النظرة العامة', flag:'🇸🇦',
+    loginKlinik:'Psykia', loginTitle:'تسجيل الدخول', loginDesc:'أعطاك معالجك رمزاً شخصياً. اكتبه هنا للبدء.', loginCodeLabel:'رمزك', loginBtn:'متابعة', loginError:'لم يتم التعرف على الرمز. تحقق من صحة الكتابة أو اسأل معالجك.', loginMockNotice:'في النسخة السريرية يتم التحقق من الرمز في نظام العيادة. أدخل أي رمز لعرض التدفق.',
+    consentKlinik:'Psykia', consentTitle:'قبل أن تبدأ', consentIntro:'نود جمع معلومات مجهولة الهوية حول استخدام الموقع لتحسين العلاج.', consentItem1Title:'استخدام الوحدات', consentItem1Desc:'نسجل الوحدات التي تفتحها والوقت الذي تقضيه فيها. المعلومات مرتبطة برمزك المجهول وليس باسمك.', consentItem2Title:'بياناتك محمية', consentItem2Desc:'الموقع لا يعرف اسمك أو تشخيصك. فقط معالجك يستطيع ربط رمزك ببياناتك الطبية.', consentItem3Title:'يمكنك دائماً سحب موافقتك', consentItem3Desc:'تحدث مع معالجك إذا لم تريد استخدام بياناتك. لا يزال بإمكانك استخدام الموقع.', consentNote:'استخدام الموقع طوعي ولا يؤثر على علاجك.', consentCheckboxLabel:'قرأت وفهمت ما سبق وأوافق على جمع بيانات الاستخدام المجهولة.', consentBtnText:'أوافق وأريد البدء', consentSkip:'لا أرغب في المساهمة بالبيانات — استخدم الموقع بدون تسجيل',readAloud:'قراءة بصوت عالٍ',readSection:'قراءة هذا القسم',startBtn:'ابدأ',stopBtn:'إيقاف',mforl_d:'مقدمة عما يتضمنه علاجك — وكيف يكون هذا الموقع جزءاً من رحلتك.',mmot_d:'اكتب أفكارك الخاصة عن التوقعات والمخاوف والآمال. استخدمها للاستعداد لجلستك القادمة.',moev1_d:'تمرينان مهدئان للتنفس مع رسوم متحركة. استخدمهما لتخفيف القلق وتهدئة الجهاز العصبي.',moev2_d:'تمرين تصور موجَّه. استحضر مكاناً آمناً أو شخصاً عزيزاً في ذهنك — ولاحظ ما يحدث في جسدك.',moev3_d:'عندما تتسارع الأفكار أو يشعر الجسد بالبعد — استخدم الحركة والحواس للعودة إلى هنا والآن.',moev4_d:'تمرين يجمع بين التنفس البطيء والسكون والامتنان — لمن يجد قوته في الصلاة أو التأمل.',mmidt_d:'وقفة لجمع ما تعلمته. ما الذي تعرفته من الوحدات الأولى؟ ما الذي تود مناقشته مع معالجك؟',m5depd:'لماذا يسير اضطراب PTSD والاكتئاب جنباً إلى جنب — ما هو الاكتئاب وما الذي يساعد.',
     m0t:'مرحباً — ما هو اضطراب PTSD؟', m0d:'مقدمة للموقع وما هو اضطراب PTSD ولماذا يساعد التعرف على تحدياتك. اقرأ هذا قبل الوحدات الأخرى.',
     m1t:'جهازك العصبي', m1d:'فهم ما هو الجهاز العصبي وكيف يستجيب للخطر وما يساعده على الهدوء.',
     m2t:'القلق والذكريات والاسترجاع', m2d:'عن الأفكار الواعية وغير الواعية، وما هو القلق، ولماذا يمكن للدماغ إعادة تشغيل الذكريات كأنها تحدث الآن.',
@@ -2481,9 +2583,11 @@ const T = {
     m5t:'النوم والكوابيس', m5d:'لماذا يُضطرب النوم عند الإصابة بـ PTSD، وما هي الكوابيس — وما الذي يساعد فعلاً.',
     m6t:'المشاعر القوية', m6d:'فهم وإدارة المشاعر الشديدة كالغضب والحزن والخجل والخوف.',
     m7t:'العلاقات والثقة', m7d:'كيف يمكن أن تؤثر الصدمة على العلاقات مع الآخرين وما الذي يمكن أن يساعد.',
-    m8t:'الأدوية والعلاج', m8d:'دور الهيكل في خلق الأمان عندما تبدو الحياة اليومية مرهقة.'
+    m8t:'الأدوية والعلاج', m8d:'دور الهيكل في خلق الأمان عندما تبدو الحياة اليومية مرهقة.','mforl-t':'رحلة علاجك','mmot-t':'ما الذي تود الحصول عليه من العلاج؟','moev1-t':'تنفس بهدوء','moev2-t':'مكاني الآمن','moev3-t':'الحضور هنا والآن','moev4-t':'لحظة سكون','mmidt-label':'تأمل في منتصف الطريق','mmidt-t':'ماذا تعلمت — وما الذي لا يزال صعباً؟','mafsl-label':'تأمل ختامي','mafsl-t':'ماذا تأخذ معك — وما التالي؟'
   },
-  so: { wTitle:'Soo dhawoow', wT1:"Soo dhawoow boggan. Boggan wuxuu kaa caawin doonaa inaad ku fahamto dhibaatooyinkaaga luqaddaada hooyo, waxaana kaa gacan seeri kara intaad ku jirto daaweynta xarunta Qaxootiinta La Daaweyn.", wT2:"Had iyo jeer xasuuso inaad su'aasho dhakhtarkaaga haddaad shaki ka qabto wax aad halkan ka akhrido.", wBtn:'Arag dhammaan mawduucyada', ovTitle:'Dooro mawduuc', ovSub:'Guji module si aad u bilowdo.', ovIntro:'Cada module waxay qaadataa 5–10 daqiiqo si loo akhriyo. Waxaad joojin kartaa marna oo ku sii wadi kartaa maalin kale.', chLang:'Beddel luqadda', cat0:'Halkan ka bilow', cat1:'Jidha iyo nidaamka xididdada', cat2:'Dhaawacyada iyo falcelinta', cat3:'Nolosha maalmeedka iyo xiriirka', avail:'La heli karo', soon:'Waa la soo bixi doonaa', back:'Ku laabo guud ahaan', flag:'🇸🇴',
+  so: { wTitle:'Soo dhawoow', wT1:"Soo dhawoow boggan. Boggan wuxuu kaa caawin doonaa inaad ku fahamto dhibaatooyinkaaga luqaddaada hooyo.", wT2:"Had iyo jeer xasuuso inaad su'aasho dhakhtarkaaga haddaad shaki ka qabto wax aad halkan ka akhrido.", wBtn:'Arag dhammaan mawduucyada', ovTitle:'Dooro mawduuc', ovSub:'Baro caqabadahaaga — xawligaaga.',showMore:'Muuji wax dheeraad ah',showLess:'Qari',expandAll:'Muuji dhammaan modules',collapseAll:'Qari dhammaan modules',exerciseFolder:'Layliyada',oevIntro:'Layliyadan waxaad isticmaali kartaa marka aad dareemayso adkaan — ama caado maalin walba ah. Uma baahnid inaad si kala dambeysa u akhrido. Hel midka kuu habboon hadda.',lblIntro:'Hordhac',lblSupp:'Dheeraad ah',lblOev:'Layli', ovIntro:'Cada module waxay qaadataa 5–10 daqiiqo si loo akhriyo. Waxaad joojin kartaa marna oo ku sii wadi kartaa maalin kale.', chLang:'Beddel luqadda', cat0:'Halkan ka bilow', cat1:'Jidha iyo nidaamka xididdada', cat2:'Dhaawacyada iyo falcelinta', cat3:'Nolosha maalmeedka iyo xiriirka', avail:'La heli karo', soon:'Waa la soo bixi doonaa', back:'Ku laabo guud ahaan', flag:'🇸🇴',
+    loginKlinik:'Psykia', loginTitle:'Gal', loginDesc:'Dhakhtarkaagu wuxuu kuu siiyay xarfaha gaarka ah. Halkaan ku qor si aad u bilaabato.', loginCodeLabel:'Xarfahaaga', loginBtn:'Sii wad', loginError:'Xarfaha lama aqoonsan. Hubi inaad si sax ah u qortay ama weydii dhakhtarkaaga.', loginMockNotice:'Noocyada ciliinika ah xarfaha waxaa lagu xaqiijiyaa nidaamka rugta. Geli xaraf kasta si aad u muujiso socodka.',
+    consentKlinik:'Psykia', consentTitle:'Intaadan bilaabin', consentIntro:'Waxaan jeclaan lahay inaan ururino macluumaadka magaca-la\'aanta ah ee ku saabsan isticmaalka bogga si loona hagaajiyo daaweynta.', consentItem1Title:'Isticmaalka modules', consentItem1Desc:'Waxaan diiwaangelinaa modules-ka aad furto iyo waqtiga aad ku qaadato. Macluumaadku wuxuu xidhan yahay xarfahaaga magaca-la\'aanta ah ee magacaaga ma ahan.', consentItem2Title:'Xogahaagu waa la ilaalinayaa', consentItem2Desc:'Boggu magacaaga ama baaritaankaaga ma garanayso. Dhakhtarkaagu kaliya ayaa xarfahaaga ku xidhi kara xogtaada caafimaadka.', consentItem3Title:'Weligaa awood baad u leedahay inaad ogolaanshahaaga ka noqoto', consentItem3Desc:'La hadal dhakhtarkaaga haddaadan rabin in xogahaagu la isticmaalo. Weli bogga isticmaali kartaa.', consentNote:'Isticmaalka bogga waa ikhtiyaari mana saameeyso daaweyntaada.', consentCheckboxLabel:'Waxaan akhristay oo fahamtay waxa kor ku xusan waxaana ogolanay uruurinta xogta isticmaalka magaca-la\'aanta ah.', consentBtnText:'Waxaan aqbalay oo rabaa inaan bilaabo', consentSkip:'Elma rabo inaan xog bixiyo — bogga isticmaal diiwaan-gelinta la\'aan',readAloud:'Akhri kor',readSection:'Akhri qaybtan',startBtn:'Bilow',stopBtn:'Jooji',mforl_d:'Hordhac ku saabsan waxa daaweyntaadu ay ka kooban tahay — iyo sida boggan uu qayb ka yahay safarkaaga.',mmot_d:'Qor fikradahaaga gaarka ah ee ku saabsan rajada, walaaca, iyo rajooyinka. U isticmaal si aad ugu diyaargaroowdo kulankaaga xiga.',moev1_d:'Laba layli oo neefsasho deggan oo leh animation. U isticmaal si aad u dejiso walaaca oo aad u dejiso nidaamka neerfaha.',moev2_d:'Layli muuqaalka hagaajinta. Maskaxda ku keen meel amaan ah ama qof aad jeceshahay — oo dareem waxa jirka ka dhacaya.',moev3_d:'Marka fikradahu degdegaan ama jirku u dareemo mid fog — isticmaal dhaqdhaqaaqa iyo dareenada si aad ugu soo laabato halkan iyo hadda.',moev4_d:'Layli isku daraya neefsasho gaabis ah, aamusnaan, iyo mahadnaq — kuwa awood ka helaya salaadda ama xusuusta.',mmidt_d:'Nasasho aad ku ururiso waxa aad bartay. Maxaad ka aqoonsatay modules-yadii kowaad? Maxaad rabto inaad la sheekeysato dhakhtarkaaga?',m5depd:'Sababta PTSD iyo niyad-jab ay si joogto ah u wada socdaan — waxa niyad-jabku yahay, iyo waxa ka caawiya.',
     m0t:'Soo dhawoow — PTSD waa maxay?', m0d:'Hordhac boggan, PTSD waa maxay, iyo sababta ay fahmidda dhibaatooyinkaagu kaa caawiso. Tan ka akhri ka hor modules-ka kale.',
     m1t:'Nidaamkaaga xididdada', m1d:'Faham waxa ah nidaamka xididdada, sida uu u falcelo khatar, iyo waxa ka caawinaya inuu xasillo.',
     m2t:'Welwelka, xusuusta iyo dib-u-noolaynta', m2d:'Ku saabsan fikirrada muuqda iyo kuwa qarsooon, waxa ah welwelka, iyo sababta maskaxdu u degi karto xusuustada sidii ay hadda dhacayso.',
@@ -2492,10 +2596,12 @@ const T = {
     m5t:'Hurdo iyo xanuunka habeenkii', m5d:'Sababta hurdadu u xanaaqdaa PTSD, waxa ah xanuunka habeenkii — iyo waxa dhab ah ee ka caawiya.',
     m6t:'Dareenka xoogga badan', m6d:'Fahamka iyo maaraynta dareenka xooggan sida cadho, murugo, iyo cabsi.',
     m7t:'Xiriirka iyo kalsooni', m7d:'Sida dhaawacku u saameyn karo xiriirka dadka kale, iyo waxa ka caawinaya.',
-    m8t:'Daawooyinka iyo daaweynta', m8d:'Doorka qaab-dhismeedka ah ee abuurista amaan marka nolosha maalinlaha ay u muuqato culus.'
+    m8t:'Daawooyinka iyo daaweynta', m8d:'Doorka qaab-dhismeedka ah ee abuurista amaan marka nolosha maalinlaha ay u muuqato culus.','mforl-t':'Safarka daaweyntaada','mmot-t':'Maxaad rabto inaad ka hesho daaweynta?','moev1-t':'Si deggan u neefso','moev2-t':'Meeshayda amaanka','moev3-t':'Halkan iyo hadda ku dhaco','moev4-t':'Daqiiqo aamusnaan ah','mmidt-label':'Milicsiga dhexe','mmidt-t':'Maxaad baratay — maxaa weli adag?','mafsl-label':'Milicsiga gabagabada','mafsl-t':'Maxaad qaadanaysaa — maxaa xiga?'
   },
   ti: {
-    wTitle: 'እንቋዕ ብደሓን መጻእኩም', wT1: 'ናብዚ ወብሳይት እንቋዕ ብደሓን መጻእኩም። እዚ ወብሳይት ብቋንቋኹም ዘጋጠሙኹም ጸገማት ንምርዳእ ክሕግዘኩም ዝዓለመ ኮይኑ፡ ኣብ ክሊኒክ ንዘሎ ሕክምናኹም እውን ክደግፈኩም ይኽእል።', wT2: 'ዘንብብዎ ነገር ንኽርደኹም ዝጸገም እንተሃለወ፡ ንሓኪምኩም ሕተቱ።', wBtn: 'ኩሎም ኣርእስቲ ርአ', ovTitle: 'ኣርእስቲ ምረጽ', ovSub: 'ንምጅማር ኣብ ሓደ ሞዱል ጠውቑ።', ovIntro: 'ነፍሲ ወከፍ ሞዱል 5–10 ደቓይቕ ክወስድ ይኽእል። ንስኹም ዝሓሸ ዝስምዓኩም ፍጥነት ክትጥቀሙ ትኽእሉ።', chLang: 'ቋንቋ ቀይር', cat0: 'ካብዚ ጀምሩ', cat1: 'ኣካላትን ነርቭ ሲስተምን', cat2: 'ትራውማን ምዕጋስን', cat3: 'ዕለታዊ ህይወትን ዝምድናን', avail: 'ይርከብ', soon: 'ቀሪቡ ይመጽእ', back: 'ናብ ሊስታ ተመለስ', flag: '🇪🇷',
+    wTitle: 'እንቋዕ ብደሓን መጻእኩም', wT1: 'ናብዚ ወብሳይት እንቋዕ ብደሓን መጻእኩም። እዚ ወብሳይት ብቋንቋኹም ዘጋጠሙኹም ጸገማት ንምርዳእ ክሕግዘኩም ይዓለመ።', wT2: 'ዘንብብዎ ነገር ንኽርደኹም ዝጸገም እንተሃለወ፡ ንሓኪምኩም ሕተቱ።', wBtn: 'ኩሎም ኣርእስቲ ርአ', ovTitle: 'ኣርእስቲ ምረጽ', ovSub: 'ብዛዕባ ብድሆታትኩም ተምሃሩ — ብናትኩም ፍጥነት።',showMore:'ተወሳኺ ኣርኢ',showLess:'ሕባእ',expandAll:'ኩሎም ሞዱላት ኣርኢ',collapseAll:'ኩሎም ሞዱላት ሕባእ',exerciseFolder:'ልምምዳት',oevIntro:'እዞም ልምምዳት እዚኦም ኩነታት ኣጸጋሚ ኮይኑ ኣብ ዝስምዓኩም ግዜ ወይ ከም ናይ ኩሉ መዓልቲ ልምዲ ክትጥቀምሉ ትኽእሉ። ብስርዓት ምንባቦም ኣየድልየኩምን። ሕጂ ዝሰማማዕኩም ርኸቡ።',lblIntro:'መእተዊ',lblSupp:'ተወሳኺ',lblOev:'ልምምድ', ovIntro: 'ነፍሲ ወከፍ ሞዱል 5–10 ደቓይቕ ክወስድ ይኽእል። ንስኹም ዝሓሸ ዝስምዓኩም ፍጥነት ክትጥቀሙ ትኽእሉ።', chLang: 'ቋንቋ ቀይር', cat0: 'ካብዚ ጀምሩ', cat1: 'ኣካላትን ነርቭ ሲስተምን', cat2: 'ትራውማን ምዕጋስን', cat3: 'ዕለታዊ ህይወትን ዝምድናን', avail: 'ይርከብ', soon: 'ቀሪቡ ይመጽእ', back: 'ናብ ሊስታ ተመለስ', flag: '🇪🇷',
+    loginKlinik:'Psykia', loginTitle:'እቶ', loginDesc:'ሓኪምኩም ናይ ውልቂ ኮድ ሂቡኩም ኣሎ። ንምጅማር ኣብዚ ጸሓፍዎ።', loginCodeLabel:'ኮድኩም', loginBtn:'ቀጽሉ', loginError:'ኮዱ ኣይተፈልጠን። ብቕኑዕ ከምዝጸሓፍኩምዎ ሓሹ ወይ ንሓኪምኩም ሕተቱ።', loginMockNotice:'ኣብ ክሊኒካዊ ሕክምና ኮዱ ኣብ ስርዓት ክሊኒክ ይረጋገጽ። ን ምርኣይ ናይ ዓውዲ ፍሰት ዝኾነ ኮድ ኣእትዉ.',
+    consentKlinik:'Psykia', consentTitle:'ቅድሚ ምጅማርኩም', consentIntro:'ንምምሕያሽ ሕክምና ናይ ጣቓ ዘይብሉ ሓበሬታ ምርኻብ ንደሊ።', consentItem1Title:'ምጥቃም ሞዱላት', consentItem1Desc:'ዝኸፍትዎም ሞዱላት ዝጥቀምሉ ዝሃቦ እዋን ንምዝግብ። ሓበሬታ ናብ ናይ ጣቓ ዘይብሉ ኮድኩም ዝተኣሳሰር ናብ ስምኩም ኣይኮነን።', consentItem2Title:'ውሂብኩም ዝሕሎ ኣሎ', consentItem2Desc:'ስምኩም ወይ ሕሙምነትኩም ናብዚ ዌብሳይት ኣይፍለጥን። ሓኪምኩም ጥራሕ ኮድኩም ምስ ሕክምናዊ ሓበሬታኩም ከኣሳስሮ ይኽእል።', consentItem3Title:'ፍቓድኩም ወሰን ግዜ ምስሓቡ ትኽእሉ', consentItem3Desc:'ሓበሬታኩም ክጥቀሙ ምስ ዘይደልዩ ምስ ሓኪምኩም ዘራረቡ። ናብዚ ዌብሳይት ክትምለሱ ትኽእሉ ኢኹም።', consentNote:'ምጥቃም ዌብሳይት ናጻ ምርጫ ኮይኑ ሕክምናኹም ኣይጸልዎን።', consentCheckboxLabel:'ናይ ላዕሊ ዝተጻሕፈ ኣንቢበ ተረዲኤ ናይ ጣቓ ዘይብሉ ሓበሬታ ምርኻብ ፍቒደ።', consentBtnText:'ፍቓደይ ሂበ ክጅምር ደሊ', consentSkip:'ሓበሬታ ምሃብ ኣይደልን — ብዘይ ምምዝጋብ ዌብሳይት ምጥቃም',readAloud:'ብድምጺ ኣንብብ',readSection:'ነዚ ክፋል ኣንብብ',startBtn:'ጀምር',stopBtn:'ደው በል',mforl_d:'ሕክምናኹም ዝሓዞ ነገራትን እዚ ወብሳይት ካብ ጉዕዞኹም ክፋል ምዃኑን ዝገልጽ መእተዊ።',mmot_d:'ብዛዕባ ትጽቢታትኩም፡ ሻቕሎታትኩምን ተስፋኹምን ናይ ገዛእ ርእስኹም ሓሳባት ጸሓፉ። ንዝመጽእ ዝርርብኩም ምድላው ተጠቐሙሉ።',moev1_d:'ምስ ኣናሜሽን ክልተ ዘህዱኡ ናይ ምስትንፋስ ልምምዳት። ጭንቀት ንምቕናስን ነርቭ ሲስተም ንምህዳእን ተጠቐሙሎም።',moev2_d:'ብመራሒ ዝምራሕ ናይ ምሕሳብ ልምምድ። ኣብ ኣእምሮኹም ድሕንነት ዘለዎ ቦታ ወይ ፍቑር ሰብ ኣምጽኡ — ኣብ ኣካላትኩም እንታይ ከምዘጋጥም ኣስተውዕሉ።',moev3_d:'ሓሳባት ምስ ዝሰላሰሉ ወይ ኣካላት ርሑቕ ኮይኑ ምስ ዝስምዓኩም — ኣብ ሕጂን ኣብዚን ንኽትለዕሉ ምንቅስቓስን ስምዒታትን ተጠቐሙ።',moev4_d:'ዘይተሃወኸ ምስትንፋስ ምስ ስቕታን ምስጋናን ዝውህብ ልምምድ — ንግዜ ጸሎት ወይ ሓሳብ ብምድሃስ ሓይሊ ንዝረኽቡ ሰባት።',mmidt_d:'እንታይ ከም ዝተማሃርኩም ንምእካብ ዝሕግዝ ዕረፍቲ። ካብቶም ቀዳሞት ሞዱላት እንታይ ኣለሊኹም? ምስ ሓኪምኩም እንታይ ክትዘራረቡ ትደልዩ?',m5depd:'ስለምንታይ PTSDን ጭንቀትን ብሓባር ብተደጋጋሚ ዝመጹ — ጭንቀት እንታይ ምዃኑን ዘሕግዝ ነገራትን።',
     m0t: 'እንቋዕ ብደሓን መጻእኩም — PTSD እንታይ ማለት ኢዩ?', m0d: 'ናይዚ ወብሳይት መእተዊ፡ PTSD እንታይ ምዃኑን፡ ብዛዕባ ጸገማትኩም ምፍላጥ ከመይ ከምዝሕግዘኩምን። ካልኦት ሞዱላት ቅድሚ ምርኣይኩም ኣንብብዎ።',
     m1t: 'ናይ ነርቭ ሲስተምኩም', m1d: 'ናይ ነርቭ ሲስተም እንታይ ምዃኑ፡ ናብ ሓደጋ ብኸመይ ከምዝምልስ፡ ናብ ዕረፍቲ ዝሕግዝ ነገር ተረዱ።',
     m2t: 'ጭንቀት፡ ዝኽሪን ዳግም ምንቃሕን', m2d: 'ብዛዕባ ንቑሕን ዘይንቑሕን ሓሳባት፡ ጭንቀት እንታይ ምዃኑ፡ ሞቦ ሕሉፍ ዝኽሪ ከም ሎሚ ዘጋጥም ምኽንያቱ።',
@@ -2504,10 +2610,12 @@ const T = {
     m5t: 'ምድቃስን ሕልምታ ዝሰምብዱን', m5d: 'ድቃስ ኣብ PTSD ስለምንታይ ዝዛባዕ፡ ሕልምታ ዝሰምብዱ እንታይ ምዃኖም — ዝሕግዝ ነገር ዘሎ።',
     m6t: 'ሓያሎ ስምዒታት', m6d: 'ቁጠዐ፡ ሓዘን፡ ፍርሒ ዝኣመሰሉ ሓያሎ ስምዒታት ምርዳእን ምምሕዳርን።',
     m7t: 'ዝምድናን ምትእምማንን', m7d: 'ትራውማ ናብ ካልኦት ሰባት ዘሎና ዝምድና ብኸመይ ከምዝጸልዎ፡ ዝሕግዝ ነገር ዘሎ።',
-    m8t: 'መድሃኒትን ሕክምናን', m8d: 'ህይወት ዘይሳላዘካ ክትስምዓካ ከሎ ስርዓትን ቅድምነትን ኣብ ምፍጣር ድሕንነት ዘለዎ ኣገዳስነት።'
+    m8t: 'መድሃኒትን ሕክምናን', m8d: 'ህይወት ዘይሳላዘካ ክትስምዓካ ከሎ ስርዓትን ቅድምነትን ኣብ ምፍጣር ድሕንነት ዘለዎ ኣገዳስነት።','mforl-t':'ናይ ሕክምናኹም ጉዕዞ','mmot-t':'ካብ ሕክምና እንታይ ክትረኽቡ ትደልዩ?','moev1-t':'ብህዱእ ኣተንፍሱ','moev2-t':'ድሕንነት ዘለዎ ቦታይ','moev3-t':'ኣብዚን ሕጂን ኩኑ','moev4-t':'ናይ ህዱእ ህሞት','mmidt-label':'ናይ መንጎ ሓሳብ','mmidt-t':'እንታይ ተማሃርኩም — እንታይ ድማ ጌና ኣጸጋሚ ኮይኑ?','mafsl-label':'መዛዘሚ ሓሳብ','mafsl-t':'እንታይ ሒዝኩም ትኸዱ — ድሕሪ ሕጂኸ እንታይ?'
   },
   fa: {
-    wTitle: 'خوش آمدید', wT1: 'به این وب‌سایت خوش آمدید. این وب‌سایت به شما کمک می‌کند تا مشکلات‌تان را به زبان خود درک کنید و می‌تواند در طول درمان‌تان در کلینیک پناهندگان آسیب‌دیده از تروما از شما حمایت کند.', wT2: 'اگر در مورد چیزی که اینجا می‌خوانید سؤالی دارید، حتماً از درمانگرتان بپرسید.', wBtn: 'مشاهده همه موضوعات', ovTitle: 'یک موضوع انتخاب کنید', ovSub: 'برای شروع روی یک ماژول کلیک کنید.', ovIntro: 'هر ماژول ۵ تا ۱۰ دقیقه طول می‌کشد. می‌توانید هر زمان که خواستید متوقف شوید و روز دیگری ادامه دهید.', chLang: 'تغییر زبان', cat0: 'از اینجا شروع کنید', cat1: 'بدن و سیستم عصبی', cat2: 'تروما و واکنش‌ها', cat3: 'زندگی روزمره و روابط', avail: 'در دسترس', soon: 'به زودی', back: 'بازگشت به فهرست', flag: '🇦🇫',
+    wTitle: 'خوش آمدید', wT1: 'به این وب‌سایت خوش آمدید. این وب‌سایت به شما کمک می‌کند تا مشکلات‌تان را به زبان خود درک کنید.', wT2: 'اگر در مورد چیزی که اینجا می‌خوانید سؤالی دارید، حتماً از درمانگرتان بپرسید.', wBtn: 'مشاهده همه موضوعات', ovTitle: 'یک موضوع انتخاب کنید', ovSub: 'درباره مشکلات‌تان بیاموزید — با سرعت خودتان.',showMore:'نمایش بیشتر',showLess:'پنهان کردن',expandAll:'نمایش همه ماژول‌ها',collapseAll:'پنهان کردن همه ماژول‌ها',exerciseFolder:'تمرین‌ها',oevIntro:'وقتی احساس سختی می‌کنید یا به عنوان یک روال روزانه می‌توانید از این تمرین‌ها استفاده کنید. لازم نیست به ترتیب بخوانید. تمرینی را پیدا کنید که الان برایتان مناسب است.',lblIntro:'مقدمه',lblSupp:'تکمیلی',lblOev:'تمرین', ovIntro: 'هر ماژول ۵ تا ۱۰ دقیقه طول می‌کشد. می‌توانید هر زمان که خواستید متوقف شوید و روز دیگری ادامه دهید.', chLang: 'تغییر زبان', cat0: 'از اینجا شروع کنید', cat1: 'بدن و سیستم عصبی', cat2: 'تروما و واکنش‌ها', cat3: 'زندگی روزمره و روابط', avail: 'در دسترس', soon: 'به زودی', back: 'بازگشت به فهرست', flag: '🇦🇫',
+    loginKlinik:'Psykia', loginTitle:'ورود', loginDesc:'درمانگرتان یک کد شخصی به شما داده است. آن را اینجا وارد کنید تا شروع کنید.', loginCodeLabel:'کد شما', loginBtn:'ادامه', loginError:'کد شناسایی نشد. بررسی کنید که درست وارد کرده‌اید یا از درمانگرتان بخواهید.', loginMockNotice:'در نسخه بالینی کد در سیستم کلینیک تأیید می‌شود. برای نمایش جریان هر کدی را وارد کنید.',
+    consentKlinik:'Psykia', consentTitle:'قبل از شروع', consentIntro:'می‌خواهیم اطلاعات ناشناس درباره استفاده از سایت جمع‌آوری کنیم تا درمان را بهبود دهیم.', consentItem1Title:'استفاده از ماژول‌ها', consentItem1Desc:'ثبت می‌کنیم کدام ماژول‌ها را باز می‌کنید و چه مدت صرف می‌کنید. اطلاعات به کد ناشناس شما مرتبط است نه به نام شما.', consentItem2Title:'اطلاعات شما محافظت می‌شود', consentItem2Desc:'سایت نام یا تشخیص شما را نمی‌داند. تنها درمانگرتان می‌تواند کد شما را به اطلاعات پزشکی‌تان مرتبط کند.', consentItem3Title:'همیشه می‌توانید رضایتتان را پس بگیرید', consentItem3Desc:'اگر نمی‌خواهید اطلاعاتتان استفاده شود با درمانگرتان صحبت کنید. هنوز می‌توانید از سایت استفاده کنید.', consentNote:'استفاده از سایت اختیاری است و بر درمان شما تأثیر نمی‌گذارد.', consentCheckboxLabel:'موارد بالا را خواندم و فهمیدم و با جمع‌آوری داده‌های ناشناس موافقم.', consentBtnText:'قبول می‌کنم و می‌خواهم شروع کنم', consentSkip:'نمی‌خواهم داده ارائه دهم — بدون ثبت‌نام از سایت استفاده کن',readAloud:'خواندن با صدای بلند',readSection:'خواندن این بخش',startBtn:'شروع',stopBtn:'توقف',mforl_d:'مقدمه‌ای بر آنچه درمان شما شامل می‌شود — و چگونه این سایت بخشی از سفر شماست.',mmot_d:'افکار خود را درباره انتظارات، نگرانی‌ها و امیدها بنویسید. از آن برای آماده شدن برای جلسه بعدی استفاده کنید.',moev1_d:'دو تمرین تنفس آرام‌بخش با انیمیشن. از آن‌ها برای کاهش اضطراب و آرام کردن سیستم عصبی استفاده کنید.',moev2_d:'یک تمرین تجسم هدایت‌شده. یک مکان امن یا یک عزیز را به ذهن بیاورید — و توجه کنید چه چیزی در بدن شما اتفاق می‌افتد.',moev3_d:'وقتی افکار تند می‌شوند یا بدن دور به نظر می‌رسد — از حرکت و حواس برای بازگشت به اینجا و اکنون استفاده کنید.',moev4_d:'تمرینی که تنفس آهسته را با سکوت و قدردانی ترکیب می‌کند — برای کسانی که در دعا یا تأمل قدرت می‌یابند.',mmidt_d:'مکثی برای جمع‌بندی آموخته‌هایتان. از ماژول‌های اول چه چیزی را شناختید؟ چه چیزی را می‌خواهید با درمانگرتان در میان بگذارید؟',m5depd:'چرا PTSD و افسردگی اغلب با هم می‌آیند — افسردگی چیست و چه چیزی کمک می‌کند.',
     m0t: 'خوش آمدید — PTSD چیست؟', m0d: 'مقدمه‌ای به این سایت، PTSD چیست، و چرا یادگیری درباره مشکلات‌تان کمک می‌کند. قبل از ماژول‌های دیگر این را بخوانید.',
     m1t: 'سیستم عصبی شما', m1d: 'بفهمید سیستم عصبی چیست، چگونه به خطر واکنش نشان می‌دهد، و چه چیزی به آرامش آن کمک می‌کند.',
     m2t: 'اضطراب، خاطرات و بازتجربه', m2d: 'درباره افکار آگاهانه و ناآگاهانه، اضطراب چیست، و چرا مغز می‌تواند خاطرات را انگار الان اتفاق می‌افتد بازپخش کند.',
@@ -2516,10 +2624,12 @@ const T = {
     m5t: 'خواب و کابوس‌ها', m5d: 'چرا خواب در PTSD مختل می‌شود، کابوس‌ها چیستند — و چه چیزی واقعاً کمک می‌کند.',
     m6t: 'احساسات شدید', m6d: 'درک و مدیریت احساسات شدید مانند خشم، غم، شرم و ترس در زندگی روزمره.',
     m7t: 'روابط و اعتماد', m7d: 'چگونه تروما می‌تواند روابط با دیگران را تحت تأثیر قرار دهد و چه چیزی کمک می‌کند.',
-    m8t: 'دارو و درمان', m8d: 'نقش ساختار در ایجاد امنیت وقتی زندگی روزمره طاقت‌فرسا به نظر می‌رسد.'
+    m8t: 'دارو و درمان', m8d: 'نقش ساختار در ایجاد امنیت وقتی زندگی روزمره طاقت‌فرسا به نظر می‌رسد.','mforl-t':'سفر درمانی شما','mmot-t':'دوست دارید از درمان چه به دست آورید؟','moev1-t':'آرام نفس بکشید','moev2-t':'مکان امن من','moev3-t':'اینجا و اکنون فرود آیید','moev4-t':'لحظه‌ای از سکوت','mmidt-label':'تأمل میانی','mmidt-t':'چه آموخته‌اید — و چه چیزی هنوز سخت است؟','mafsl-label':'تأمل پایانی','mafsl-t':'چه با خود می‌برید — و حالا چه؟'
   },
   'fa-ir': {
-    wTitle: 'خوش آمدید', wT1: 'به این وب‌سایت خوش آمدید. این وب‌سایت به شما کمک می‌کند تا مشکلات‌تان را به زبان خود درک کنید و می‌تواند در طول درمان‌تان در کلینیک برای پناهندگان آسیب‌دیده از تروما از شما حمایت کند.', wT2: 'اگر در مورد چیزی که اینجا می‌خوانید سؤالی دارید، حتماً از درمانگرتان بپرسید.', wBtn: 'مشاهده همه موضوعات', ovTitle: 'یک موضوع انتخاب کنید', ovSub: 'برای شروع روی یک ماژول کلیک کنید.', ovIntro: 'هر ماژول ۵ تا ۱۰ دقیقه طول می‌کشد. می‌توانید هر زمان متوقف شوید و روز دیگری ادامه دهید.', chLang: 'تغییر زبان', cat0: 'از اینجا شروع کنید', cat1: 'بدن و سیستم عصبی', cat2: 'تروما و واکنش‌ها', cat3: 'زندگی روزمره و روابط', avail: 'در دسترس', soon: 'به زودی', back: 'بازگشت به فهرست', flag: '🇮🇷',
+    wTitle: 'خوش آمدید', wT1: 'به این وب‌سایت خوش آمدید. این وب‌سایت به شما کمک می‌کند تا مشکلات‌تان را به زبان خود درک کنید.', wT2: 'اگر در مورد چیزی که اینجا می‌خوانید سؤالی دارید، حتماً از درمانگرتان بپرسید.', wBtn: 'مشاهده همه موضوعات', ovTitle: 'یک موضوع انتخاب کنید', ovSub: 'درباره مشکلات‌تان بیاموزید — با سرعت خودتان.',showMore:'نمایش بیشتر',showLess:'پنهان کردن',expandAll:'نمایش همه ماژول‌ها',collapseAll:'پنهان کردن همه ماژول‌ها',exerciseFolder:'تمرین‌ها',oevIntro:'وقتی احساس سختی می‌کنید یا به عنوان یک روال روزانه می‌توانید از این تمرین‌ها استفاده کنید. لازم نیست به ترتیب بخوانید. تمرینی را پیدا کنید که الان برایتان مناسب است.',lblIntro:'مقدمه',lblSupp:'تکمیلی',lblOev:'تمرین', ovIntro: 'هر ماژول ۵ تا ۱۰ دقیقه طول می‌کشد. می‌توانید هر زمان متوقف شوید و روز دیگری ادامه دهید.', chLang: 'تغییر زبان', cat0: 'از اینجا شروع کنید', cat1: 'بدن و سیستم عصبی', cat2: 'تروما و واکنش‌ها', cat3: 'زندگی روزمره و روابط', avail: 'در دسترس', soon: 'به زودی', back: 'بازگشت به فهرست', flag: '🇮🇷',
+    loginKlinik:'Psykia', loginTitle:'ورود', loginDesc:'درمانگرتان یک کد شخصی به شما داده است. آن را اینجا وارد کنید تا شروع کنید.', loginCodeLabel:'کد شما', loginBtn:'ادامه', loginError:'کد شناسایی نشد. بررسی کنید که درست وارد کرده‌اید یا از درمانگرتان بخواهید.', loginMockNotice:'در نسخه بالینی کد در سیستم کلینیک تأیید می‌شود. برای نمایش جریان هر کدی را وارد کنید.',
+    consentKlinik:'Psykia', consentTitle:'قبل از شروع', consentIntro:'می‌خواهیم اطلاعات ناشناس درباره استفاده از سایت جمع‌آوری کنیم تا درمان را بهبود دهیم.', consentItem1Title:'استفاده از ماژول‌ها', consentItem1Desc:'ثبت می‌کنیم کدام ماژول‌ها را باز می‌کنید و چه مدت صرف می‌کنید. اطلاعات به کد ناشناس شما مرتبط است نه به نام شما.', consentItem2Title:'اطلاعات شما محافظت می‌شود', consentItem2Desc:'سایت نام یا تشخیص شما را نمی‌داند. تنها درمانگرتان می‌تواند کد شما را به اطلاعات پزشکی‌تان مرتبط کند.', consentItem3Title:'همیشه می‌توانید رضایتتان را پس بگیرید', consentItem3Desc:'اگر نمی‌خواهید اطلاعاتتان استفاده شود با درمانگرتان صحبت کنید. هنوز می‌توانید از سایت استفاده کنید.', consentNote:'استفاده از سایت اختیاری است و بر درمان شما تأثیر نمی‌گذارد.', consentCheckboxLabel:'موارد بالا را خواندم و فهمیدم و با جمع‌آوری داده‌های ناشناس موافقم.', consentBtnText:'قبول می‌کنم و می‌خواهم شروع کنم', consentSkip:'نمی‌خواهم داده ارائه دهم — بدون ثبت‌نام از سایت استفاده کن',readAloud:'خواندن با صدای بلند',readSection:'خواندن این بخش',startBtn:'شروع',stopBtn:'توقف',mforl_d:'مقدمه‌ای بر آنچه درمان شما شامل می‌شود — و چگونه این سایت بخشی از سفر شماست.',mmot_d:'افکار خود را درباره انتظارات، نگرانی‌ها و امیدها بنویسید. از آن برای آماده شدن برای جلسه بعدی استفاده کنید.',moev1_d:'دو تمرین تنفس آرام‌بخش با انیمیشن. از آن‌ها برای کاهش اضطراب و آرام کردن سیستم عصبی استفاده کنید.',moev2_d:'یک تمرین تجسم هدایت‌شده. یک مکان امن یا یک عزیز را به ذهن بیاورید — و توجه کنید چه چیزی در بدن شما اتفاق می‌افتد.',moev3_d:'وقتی افکار تند می‌شوند یا بدن دور به نظر می‌رسد — از حرکت و حواس برای بازگشت به اینجا و اکنون استفاده کنید.',moev4_d:'تمرینی که تنفس آهسته را با سکوت و قدردانی ترکیب می‌کند — برای کسانی که در دعا یا تأمل قدرت می‌یابند.',mmidt_d:'مکثی برای جمع‌بندی آموخته‌هایتان. از ماژول‌های اول چه چیزی را شناختید؟ چه چیزی را می‌خواهید با درمانگرتان در میان بگذارید؟',m5depd:'چرا PTSD و افسردگی اغلب با هم می‌آیند — افسردگی چیست و چه چیزی کمک می‌کند.',
     m0t: 'خوش آمدید — PTSD چیست؟', m0d: 'مقدمه‌ای به این سایت، PTSD چیست، و چرا یادگیری درباره مشکلات‌تان کمک می‌کند. قبل از ماژول‌های دیگر این را بخوانید.',
     m1t: 'سیستم عصبی شما', m1d: 'بفهمید سیستم عصبی چیست، چگونه به خطر واکنش نشان می‌دهد، و چه چیزی به آرامش آن کمک می‌کند.',
     m2t: 'اضطراب، خاطرات و فلاش‌بک', m2d: 'درباره افکار آگاهانه و ناآگاهانه، اضطراب چیست، و چرا مغز می‌تواند خاطرات را دوباره مثل الان تجربه کند.',
@@ -2528,10 +2638,12 @@ const T = {
     m5t: 'خواب و کابوس‌ها', m5d: 'چرا خواب در PTSD مختل می‌شود، کابوس‌ها چیستند — و چه چیزی واقعاً کمک می‌کند.',
     m6t: 'احساسات شدید', m6d: 'درک و مدیریت احساسات شدید مانند خشم، غم، شرم و ترس.',
     m7t: 'روابط و اعتماد', m7d: 'چگونه تروما می‌تواند روابط را تحت تأثیر قرار دهد و چه چیزی می‌تواند کمک کند.',
-    m8t: 'دارو و درمان', m8d: 'نقش ساختار در ایجاد امنیت وقتی زندگی روزمره سنگین به نظر می‌رسد.'
+    m8t: 'دارو و درمان', m8d: 'نقش ساختار در ایجاد امنیت وقتی زندگی روزمره سنگین به نظر می‌رسد.','mforl-t':'سفر درمانی شما','mmot-t':'دوست دارید از درمان چه به دست آورید؟','moev1-t':'آرام نفس بکشید','moev2-t':'مکان امن من','moev3-t':'اینجا و اکنون فرود آیید','moev4-t':'لحظه‌ای از سکوت','mmidt-label':'تأمل میانی','mmidt-t':'چه آموخته‌اید — و چه چیزی هنوز سخت است؟','mafsl-label':'تأمل پایانی','mafsl-t':'چه با خود می‌برید — و حالا چه؟'
   },
   ru: {
-    wTitle: 'Добро пожаловать', wT1: 'Добро пожаловать на этот сайт. Сайт поможет вам понять ваши трудности на вашем языке и может поддержать вас во время лечения в клинике для беженцев, переживших травму.', wT2: 'Если вы сомневаетесь в чём-либо из прочитанного, обязательно спросите своего врача.', wBtn: 'Посмотреть все темы', ovTitle: 'Выберите тему', ovSub: 'Нажмите на модуль, чтобы начать.', ovIntro: 'Каждый модуль занимает 5–10 минут. Вы можете остановиться в любой момент и продолжить в другой день.', chLang: 'Сменить язык', cat0: 'Начните здесь', cat1: 'Тело и нервная система', cat2: 'Травма и реакции', cat3: 'Повседневная жизнь и отношения', avail: 'Доступно', soon: 'Скоро', back: 'Вернуться к обзору', flag: '🇷🇺',
+    wTitle: 'Добро пожаловать', wT1: 'Добро пожаловать на этот сайт. Сайт поможет вам понять ваши трудности на вашем языке.', wT2: 'Если вы сомневаетесь в чём-либо из прочитанного, обязательно спросите своего врача.', wBtn: 'Посмотреть все темы', ovTitle: 'Выберите тему', ovSub: 'Узнайте о своих трудностях — в своём темпе.',showMore:'Показать больше',showLess:'Скрыть',expandAll:'Показать все модули',collapseAll:'Скрыть все модули',exerciseFolder:'Упражнения',oevIntro:'Эти упражнения можно использовать, когда вам тяжело, или как ежедневную практику. Не обязательно проходить их по порядку. Найдите то, что подходит вам сейчас.',lblIntro:'Введение',lblSupp:'Дополнительно',lblOev:'Упражнение', ovIntro: 'Каждый модуль занимает 5–10 минут. Вы можете остановиться в любой момент и продолжить в другой день.', chLang: 'Сменить язык', cat0: 'Начните здесь', cat1: 'Тело и нервная система', cat2: 'Травма и реакции', cat3: 'Повседневная жизнь и отношения', avail: 'Доступно', soon: 'Скоро', back: 'Вернуться к обзору', flag: '🇷🇺',
+    loginKlinik:'Psykia', loginTitle:'Войти', loginDesc:'Ваш врач дал вам личный код. Введите его здесь чтобы начать.', loginCodeLabel:'Ваш код', loginBtn:'Продолжить', loginError:'Код не распознан. Проверьте правильность ввода или спросите вашего врача.', loginMockNotice:'В клинической версии код проверяется в системе клиники. Введите любой код для демонстрации.',
+    consentKlinik:'Psykia', consentTitle:'Прежде чем начать', consentIntro:'Мы хотели бы собирать анонімную информацию об использовании сайта для улучшения лечения.', consentItem1Title:'Использование модулей', consentItem1Desc:'Мы регистрируем какие модули вы открываете и сколько времени тратите. Информация связана с вашим анонімным кодом не с вашим именем.', consentItem2Title:'Ваши данные защищены', consentItem2Desc:'Сайт не знает вашего имени или диагноза. Только ваш врач может связать ваш код с вашими медицинскими данными.', consentItem3Title:'Вы всегда можете отозвать своё согласие', consentItem3Desc:'Поговорите с врачом если не хотите чтобы ваши данные использовались. Вы по-прежнему можете пользоваться сайтом.', consentNote:'Использование сайта является добровольным и не влияет на ваше лечение.', consentCheckboxLabel:'Я прочитал(а) и понял(а) вышеизложенное и даю согласие на сбор анонімных данных.', consentBtnText:'Я принимаю и хочу начать', consentSkip:'Я не хочу передавать данные — использовать сайт без регистрации',readAloud:'Прочитать вслух',readSection:'Прочитать раздел',startBtn:'Начать',stopBtn:'Стоп',mforl_d:'Введение в то, что включает ваше лечение — и как этот сайт является частью вашего пути.',mmot_d:'Запишите свои мысли об ожиданиях, тревогах и надеждах. Используйте это для подготовки к следующей сессии.',moev1_d:'Два успокаивающих дыхательных упражнения с анимацией. Используйте их, чтобы уменьшить тревогу и успокоить нервную систему.',moev2_d:'Управляемое упражнение визуализации. Представьте безопасное место или близкого человека — и почувствуйте, что происходит в теле.',moev3_d:'Когда мысли мечутся или тело кажется далёким — используйте движение и чувства, чтобы вернуться в здесь и сейчас.',moev4_d:'Упражнение, сочетающее медленное дыхание с тишиной и благодарностью — для тех, кто находит силу в молитве или сосредоточении.',mmidt_d:'Пауза, чтобы собрать то, что вы узнали. Что вы узнали из первых модулей? О чём вы хотели бы поговорить со своим врачом?',m5depd:'Почему ПТСР и депрессия часто идут вместе — что такое депрессия и что помогает.',
     m0t: 'Добро пожаловать — что такое ПТСР?', m0d: 'Введение в сайт, что такое ПТСР и почему понимание своих трудностей помогает. Прочитайте это перед другими модулями.',
     m1t: 'Ваша нервная система', m1d: 'Поймите, что такое нервная система, как она реагирует на опасность и что помогает ей успокоиться.',
     m2t: 'Тревога, воспоминания и флэшбеки', m2d: 'Об осознанных и неосознанных мыслях, что такое тревога, и почему мозг может воспроизводить воспоминания как будто они происходят сейчас.',
@@ -2540,7 +2652,7 @@ const T = {
     m5t: 'Сон и кошмары', m5d: 'Почему сон нарушается при ПТСР, что такое кошмары — и что на самом деле помогает.',
     m6t: 'Сильные эмоции', m6d: 'Понимание и управление сильными эмоциями, такими как гнев, горе, стыд и страх.',
     m7t: 'Отношения и доверие', m7d: 'Как травма может влиять на отношения с другими людьми и что может помочь.',
-    m8t: 'Лекарства и лечение', m8d: 'Роль структуры в создании безопасности, когда повседневная жизнь кажется подавляющей.'
+    m8t: 'Лекарства и лечение', m8d: 'Роль структуры в создании безопасности, когда повседневная жизнь кажется подавляющей.','mforl-t':'Ваш путь лечения','mmot-t':'Что вы хотели бы получить от лечения?','moev1-t':'Дышите спокойно','moev2-t':'Моё безопасное место','moev3-t':'Приземлитесь здесь и сейчас','moev4-t':'Миг тишины','mmidt-label':'Промежуточная рефлексия','mmidt-t':'Что вы узнали — и что всё ещё трудно?','mafsl-label':'Завершающая рефлексия','mafsl-t':'Что вы берёте с собой — и что дальше?'
   }
 };
 
@@ -2579,17 +2691,29 @@ function goLang(code) {
   }, 500);
 }
 
+function returnToLang() {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  const ov = document.getElementById('overview-screen');
+  ov.classList.add('out');
+  setTimeout(() => {
+    ov.classList.add('gone');
+    const ls = document.getElementById('lang-screen');
+    ls.classList.remove('gone', 'hidden', 'out');
+  }, 450);
+}
+
 function goOverview() { goScreen('welcome', 'overview'); }
 
 function toggleWelcomeDetails() {
   const d   = document.getElementById('welcome-details');
   const btn = document.getElementById('welcome-details-toggle');
+  const t = T[lang] || T.da;
   if (d.style.display === 'none') {
     d.style.display = 'block';
-    btn.textContent = 'Skjul ↑';
+    btn.innerHTML = '<span class="show-more-label">' + t.showLess + '</span> ↑';
   } else {
     d.style.display = 'none';
-    btn.textContent = 'Vis mere ↓';
+    btn.innerHTML = '<span class="show-more-label">' + t.showMore + '</span> ↓';
   }
 }
 
@@ -2681,12 +2805,13 @@ let consentGiven = false;
 function toggleConsentDetails() {
   const d   = document.getElementById('consent-details');
   const btn = document.getElementById('consent-details-toggle');
+  const t = T[lang] || T.da;
   if (d.style.display === 'none') {
     d.style.display = 'block';
-    btn.textContent = 'Skjul ↑';
+    btn.innerHTML = '<span class="show-more-label">' + t.showLess + '</span> ↑';
   } else {
     d.style.display = 'none';
-    btn.textContent = 'Vis mere ↓';
+    btn.innerHTML = '<span class="show-more-label">' + t.showMore + '</span> ↓';
   }
 }
 
@@ -2732,8 +2857,8 @@ function openModule(id) {
   if (id === 'intro') {
     openModule0();
   } else if (id === 'nervesystem') {    window.speechSynthesis && window.speechSynthesis.cancel();
+    moduleScreen.scrollTop = 0;
     goScreen('overview', 'module');
-    setTimeout(() => moduleScreen.scrollTop = 0, 50);
     updateProgress();
   } else if (id === 'angst') {
     openModule2();
@@ -2753,6 +2878,14 @@ function openModule(id) {
     openModuleMed();
   } else if (id === 'midtvej') {
     openModuleMidtvej();
+  } else if (id === 'vejrtrae') {
+    openModuleVejrtrae();
+  } else if (id === 'trygsted') {
+    openModuleTrygsted();
+  } else if (id === 'grounding') {
+    openModuleGrounding();
+  } else if (id === 'aandero') {
+    openModuleAandero();
   }
 }
 
@@ -2810,12 +2943,61 @@ function applyTranslations() {
   set('back-label', t.back);
   set('bto-label', t.back);
   set('back-module-title', 'Modul 1 · ' + t.m1t);
+
+  // Overview accordion labels
+  set('cat-oev-text', t.exerciseFolder);
+  set('oev-intro', t.oevIntro);
+  document.querySelectorAll('.label-intro').forEach(el => el.textContent = t.lblIntro);
+  document.querySelectorAll('.label-supp').forEach(el => el.textContent = t.lblSupp);
+  document.querySelectorAll('.label-oev').forEach(el => el.textContent = t.lblOev);
+  document.querySelectorAll('.show-more-label').forEach(el => el.textContent = t.showMore);
+
+  // Speak-buttons: oversæt "Læs op" / "Læs afsnit op"
+  document.querySelectorAll('.speak-label').forEach(el => {
+    // Skift kun knapper der IKKE pt. siger "Stop"
+    if (el.textContent.trim() !== 'Stop' && el.textContent.trim() !== t.stopBtn) {
+      // Hvis knappen indeholder ordet "afsnit" eller findes inde i en section med klasse del-X,
+      // brug readSection - ellers readAloud
+      const text = (el.textContent || '').toLowerCase();
+      const isSection = text.includes('afsnit') || text.includes('section') || text.includes('قسم') || text.includes('розділ') || text.includes('раздел') || text.includes('بخش') || text.includes('ክፋል') || text.includes('qaybtan');
+      el.textContent = isSection ? t.readSection : t.readAloud;
+    }
+  });
+
+  // Start-knapper på oversigten
+  document.querySelectorAll('.mod-start').forEach(el => {
+    el.innerHTML = t.startBtn + ' →';
+  });
+
+  // Modul-beskrivelser i mod-row-expand
+  document.querySelectorAll('.mod-desc').forEach(el => {
+    const key = el.getAttribute('data-desc-key');
+    if (key && t[key]) el.textContent = t[key];
+  });
+
+  // Modul-titler i oversigten
+  set('mforl-t', t['mforl-t']);
+  set('mmot-t', t['mmot-t']);
+  set('moev1-t', t['moev1-t']);
+  set('moev2-t', t['moev2-t']);
+  set('moev3-t', t['moev3-t']);
+  set('moev4-t', t['moev4-t']);
+  set('mmidt-label', t['mmidt-label']);
+  set('mmidt-t', t['mmidt-t']);
+  set('mafsl-label', t['mafsl-label']);
+  set('mafsl-t', t['mafsl-t']);
+
+  // Expand-all knappen: skift mellem expand/collapse afhængigt af state
+  const expLabel = document.getElementById('expand-all-label');
+  if (expLabel) {
+    expLabel.textContent = (window.allOpen === true) ? t.collapseAll : t.expandAll;
+  }
 }
 
 // ===================== MODULE SCROLL & PROGRESS =====================
 const moduleScreen = document.getElementById('module-screen');
 const dots = document.querySelectorAll('.dot');
-const sections = document.querySelectorAll('section');
+const sections = document.querySelectorAll('#module-content section');
 
 function scrollToSec(idx) {
   const target = sections[idx];
@@ -2918,8 +3100,8 @@ const sections2 = document.querySelectorAll('#module2-content section');
 
 function openModule2() {
   window.speechSynthesis && window.speechSynthesis.cancel();
+  module2Screen.scrollTop = 0;
   goScreen('overview', 'module2');
-  setTimeout(() => module2Screen.scrollTop = 0, 50);
 }
 
 function closeModule2() {
@@ -2956,8 +3138,8 @@ const sections3 = document.querySelectorAll('#module3-content section');
 
 function openModule3() {
   window.speechSynthesis && window.speechSynthesis.cancel();
+  module3Screen.scrollTop = 0;
   goScreen('overview', 'module3');
-  setTimeout(() => module3Screen.scrollTop = 0, 50);
 }
 function closeModule3() {
   window.speechSynthesis && window.speechSynthesis.cancel();
@@ -2988,8 +3170,8 @@ const sections4 = document.querySelectorAll('#module4-content section');
 
 function openModule4() {
   window.speechSynthesis && window.speechSynthesis.cancel();
+  module4Screen.scrollTop = 0;
   goScreen('overview', 'module4');
-  setTimeout(() => module4Screen.scrollTop = 0, 50);
 }
 function closeModule4() {
   window.speechSynthesis && window.speechSynthesis.cancel();
@@ -3086,6 +3268,8 @@ function toggleSpeak4(sid) { if (screenScripts[sid]) { toggleSpeakScreen(sid); r
       </div>
     </section>
 
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
     <!-- M5-S1: ALARM OG SØVN -->
     <section id="m5s1">
       <div class="content">
@@ -3141,6 +3325,8 @@ function toggleSpeak4(sid) { if (screenScripts[sid]) { toggleSpeakScreen(sid); r
 </div>
     </section>
 
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
     <!-- M5-S2: MARERIDT -->
     <section id="m5s2">
       <div class="content">
@@ -3187,6 +3373,8 @@ function toggleSpeak4(sid) { if (screenScripts[sid]) { toggleSpeakScreen(sid); r
         </div>
 </div>
     </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 
     <!-- M5-S3: SØVNHYGIEJNE OG STRATEGIER -->
     <section id="m5s3">
@@ -3262,6 +3450,8 @@ function toggleSpeak4(sid) { if (screenScripts[sid]) { toggleSpeakScreen(sid); r
         </div>
 </div>
     </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 
     <!-- M5-S4: UGESKEMA + AFSLUTNING -->
     <section id="m5s4">
@@ -3390,8 +3580,8 @@ const sections5 = document.querySelectorAll('#module5-content section');
 
 function openModule5() {
   window.speechSynthesis && window.speechSynthesis.cancel();
+  module5Screen.scrollTop = 0;
   goScreen('overview', 'module5');
-  setTimeout(() => module5Screen.scrollTop = 0, 50);
 }
 function closeModule5() {
   window.speechSynthesis && window.speechSynthesis.cancel();
@@ -3417,6 +3607,494 @@ module5Screen.addEventListener('scroll', () => {
 
 function toggleSpeak5(sid) { if (screenScripts[sid]) { toggleSpeakScreen(sid); return; } toggleSpeak(sid); }
 </script>
+
+<!-- ===================== ØVELSESMODULER ===================== -->
+
+<!-- VEJRTRÆKNING -->
+<style>
+  #module-vejrtrae-screen { align-items:flex-start;padding:0;overflow-y:auto;justify-content:flex-start; }
+  #module-vejrtrae-content { width:100%;min-height:100%; }
+
+  /* Rolig vejrtrækning animation */
+  .breath-ring {
+    width:160px;height:160px;border-radius:50%;
+    background:radial-gradient(circle, rgba(74,196,143,0.25) 0%, rgba(74,196,143,0.05) 70%);
+    border:2.5px solid var(--calm);
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto;
+    transition:transform 0s, opacity 0s;
+    position:relative;
+  }
+  .breath-ring-inner {
+    width:80px;height:80px;border-radius:50%;
+    background:rgba(74,196,143,0.18);
+    border:2px solid rgba(74,196,143,0.6);
+    display:flex;align-items:center;justify-content:center;
+    font-size:.82rem;color:var(--calm);font-weight:600;letter-spacing:.03em;text-align:center;
+    line-height:1.3;
+    padding:8px;
+  }
+  .breath-phase-label {
+    text-align:center;font-size:1rem;color:var(--calm);
+    font-weight:600;margin-top:18px;letter-spacing:.04em;
+    min-height:1.5em;
+  }
+  .breath-timer {
+    text-align:center;font-size:2rem;color:var(--text);
+    font-weight:300;margin-top:6px;min-height:2.5rem;
+  }
+  .breath-controls {
+    display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap;
+  }
+  .breath-btn {
+    padding:10px 24px;border-radius:24px;border:none;cursor:pointer;
+    font-size:.9rem;font-weight:600;transition:all .2s;
+  }
+  .breath-btn.start { background:var(--calm);color:#0e1a13; }
+  .breath-btn.stop { background:transparent;border:1.5px solid var(--text-dim);color:var(--text-dim); }
+  .breath-btn:hover { opacity:.85; }
+  .breath-cycles {
+    text-align:center;font-size:.82rem;color:var(--text-dim);margin-top:10px;
+  }
+
+  /* Box breathing */
+  .box-svg-wrap { display:flex;justify-content:center;margin:4px 0; }
+  .box-svg-wrap svg { overflow:visible; }
+  .box-label-top, .box-label-right, .box-label-bottom, .box-label-left {
+    font-size:.75rem;fill:var(--text-dim);font-family:inherit;
+  }
+</style>
+
+<div class="screen out gone" id="module-vejrtrae-screen">
+  <div class="back-bar">
+    <button class="back-btn" onclick="closeModuleVejrtrae()">← <span>Tilbage til oversigt</span></button>
+    <span class="back-title">Pust roligt</span>
+  </div>
+
+  <div id="module-vejrtrae-content">
+
+    <!-- S0: INTRO -->
+    <section id="vejrtrae-s0">
+      <div class="content">
+        <div class="slabel">Øvelse · Vejrtrækning</div>
+        <h1>Pust roligt</h1>
+        <button class="speak-btn" onclick="toggleSpeakVejrtrae('vejrtrae-s0')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.4"/><path d="M3 8a5 5 0 0 0 10 0M8 13v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span class="speak-label">Læs op</span>
+        </button>
+        <p>Når vi er bange eller urolige, trækker vi vejret hurtigt og kort. Det gør kroppen endnu mere urolig.</p>
+        <p>Men hvis du trækker vejret langsomt og dybt, <strong>mærker kroppen at du er i sikkerhed — og begynder at slappe af.</strong></p>
+        <p>Her er to øvelser. Den første er blød og nem. Den anden er lidt mere fast i formen. Brug den der passer til dig i dag.</p>
+        <p style="font-size:.88rem;color:var(--text-dim)">Du behøver ikke gøre det perfekt. Følg bare animationen — og mærk hvad der sker.</p>
+      </div>
+      <div class="divider"></div>
+    </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
+    <!-- S1: BLØD VEJRTRÆKNING -->
+    <section id="vejrtrae-s1">
+      <div class="content">
+        <div class="slabel">Øvelse 1</div>
+        <h2>Ind gennem næsen — ud gennem munden</h2>
+        <button class="speak-btn" onclick="toggleSpeakVejrtrae('vejrtrae-s1')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.4"/><path d="M3 8a5 5 0 0 0 10 0M8 13v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span class="speak-label">Læs op</span>
+        </button>
+        <p>Træk vejret stille ind gennem næsen. Pust langsomt ud gennem munden — som når du puster på varm suppe for at køle den ned.</p>
+        <p>Prøv at puste lidt længere ud end du trækker ind. Det hjælper kroppen til at falde til ro.</p>
+        <p style="font-size:.85rem;color:var(--text-dim)">Pilen viser dig vejen — følg den med din vejrtrækning.</p>
+
+        <div style="margin:28px 0 8px;">
+          <div style="display:flex;justify-content:center;">
+            <svg id="breath1-svg" viewBox="0 0 220 110" width="220" height="110" style="overflow:visible">
+              <!-- Person (enkel silhouet) -->
+              <!-- Hoved -->
+              <circle cx="110" cy="22" r="13" fill="none" stroke="var(--calm)" stroke-width="2"/>
+              <!-- Krop -->
+              <line x1="110" y1="35" x2="110" y2="72" stroke="var(--calm)" stroke-width="2" stroke-linecap="round"/>
+              <!-- Arme -->
+              <line x1="110" y1="48" x2="88" y2="60" stroke="var(--calm)" stroke-width="2" stroke-linecap="round"/>
+              <line x1="110" y1="48" x2="132" y2="60" stroke="var(--calm)" stroke-width="2" stroke-linecap="round"/>
+              <!-- Ben -->
+              <line x1="110" y1="72" x2="94" y2="95" stroke="var(--calm)" stroke-width="2" stroke-linecap="round"/>
+              <line x1="110" y1="72" x2="126" y2="95" stroke="var(--calm)" stroke-width="2" stroke-linecap="round"/>
+
+              <!-- Ind-pil: nærmer sig næsen fra venstre -->
+              <g id="breath1-arrow-left">
+                <line id="bal-line" x1="28" y1="22" x2="74" y2="22" stroke="var(--calm)" stroke-width="2.2" stroke-linecap="round" opacity="0"/>
+                <polygon id="bal-head" points="77,22 68,17 68,27" fill="var(--calm)" opacity="0"/>
+              </g>
+              <!-- Ud-pil: bevæger sig væk fra munden mod venstre -->
+              <g id="breath1-arrow-right">
+                <line id="bar-line" x1="28" y1="34" x2="72" y2="34" stroke="var(--text-dim)" stroke-width="2.2" stroke-linecap="round" opacity="0"/>
+                <polygon id="bar-head" points="25,34 34,29 34,39" fill="var(--text-dim)" opacity="0"/>
+              </g>
+
+              <!-- Labels -->
+              <text id="breath1-left-label" x="46" y="16" text-anchor="middle" font-size="9.5" fill="var(--calm)" font-family="DM Sans, sans-serif" opacity="0">Næsen</text>
+              <text id="breath1-right-label" x="46" y="48" text-anchor="middle" font-size="9.5" fill="var(--text-dim)" font-family="DM Sans, sans-serif" opacity="0">Munden</text>
+            </svg>
+          </div>
+          <div class="breath-phase-label" id="breath1-phase" style="min-height:1.6em"></div>
+          <div class="breath-cycles" id="breath1-cycles"></div>
+          <div class="breath-controls">
+            <button class="breath-btn start" id="breath1-startbtn" onclick="breath1Toggle()">▶ Start</button>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+    </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
+    <!-- S2: BOX BREATHING -->
+    <section id="vejrtrae-s2">
+      <div class="content">
+        <div class="slabel">Øvelse 2</div>
+        <h2>Fire trin — tæl til fire</h2>
+        <button class="speak-btn" onclick="toggleSpeakVejrtrae('vejrtrae-s2')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.4"/><path d="M3 8a5 5 0 0 0 10 0M8 13v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span class="speak-label">Læs op</span>
+        </button>
+        <p>Denne øvelse er god når du er meget urolig og har brug for ro hurtigt. Du tæller til fire fire gange — ind, hold, ud, hold.</p>
+        <p><strong>Træk vejret ind — tæl til 4. Hold vejret — tæl til 4. Pust ud — tæl til 4. Hold — tæl til 4.</strong></p>
+        <p style="font-size:.85rem;color:var(--text-dim)">Prikken bevæger sig rundt langs firkanten og viser dig, hvor du er. Gentag fire gange.</p>
+
+        <div style="margin:28px 0 8px;">
+          <div class="box-svg-wrap">
+            <svg id="box-svg" width="200" height="200" viewBox="-30 -30 260 260">
+              <!-- Labels -->
+              <text x="100" y="-10" text-anchor="middle" class="box-label-top">IND · 4 sek</text>
+              <text x="230" y="105" text-anchor="start" class="box-label-right">HOLD · 4 sek</text>
+              <text x="100" y="232" text-anchor="middle" class="box-label-bottom">UD · 4 sek</text>
+              <text x="-12" y="105" text-anchor="end" class="box-label-left">HOLD · 4 sek</text>
+              <!-- Box -->
+              <rect x="0" y="0" width="200" height="200" rx="8" fill="none" stroke="rgba(74,196,143,0.2)" stroke-width="2"/>
+              <!-- Animated path -->
+              <rect id="box-progress" x="0" y="0" width="200" height="200" rx="8" fill="none"
+                stroke="var(--calm)" stroke-width="3"
+                stroke-dasharray="800" stroke-dashoffset="800"
+                stroke-linecap="round"/>
+              <!-- Dot -->
+              <circle id="box-dot" cx="0" cy="0" r="8" fill="var(--calm)" opacity="0"/>
+            </svg>
+          </div>
+          <div class="breath-phase-label" id="box-phase"></div>
+          <div class="breath-timer" id="box-timer"></div>
+          <div class="breath-cycles" id="box-cycles"></div>
+          <div class="breath-controls">
+            <button class="breath-btn start" id="box-startbtn" onclick="boxToggle()">▶ Start</button>
+          </div>
+        </div>
+
+
+      </div>
+    </section>
+
+  </div><!-- /vejrtrae-content -->
+</div><!-- /vejrtrae-screen -->
+
+
+<!-- TRYGT STED -->
+<style>
+  #module-trygsted-screen { align-items:flex-start;padding:0;overflow-y:auto;justify-content:flex-start; }
+  #module-trygsted-content { width:100%;min-height:100%; }
+  .tryg-step {
+    background:rgba(74,196,143,0.07);border-left:3px solid var(--calm);
+    border-radius:0 10px 10px 0;padding:14px 18px;margin:12px 0;
+  }
+  .tryg-step-num {
+    font-size:.75rem;color:var(--calm);font-weight:700;letter-spacing:.08em;margin-bottom:4px;
+  }
+  .tryg-step p { margin:0;font-size:.93rem;line-height:1.65; }
+</style>
+
+<div class="screen out gone" id="module-trygsted-screen">
+  <div class="back-bar">
+    <button class="back-btn" onclick="closeModuleTrygsted()">← <span>Tilbage til oversigt</span></button>
+    <span class="back-title">Mit trygge sted</span>
+  </div>
+
+  <div id="module-trygsted-content">
+
+    <!-- S0: INTRO -->
+    <section id="trygsted-s0">
+      <div class="content">
+        <div class="slabel">Øvelse · Tryghed</div>
+        <h1>Mit trygge sted</h1>
+        <button class="speak-btn" onclick="toggleSpeakTrygsted('trygsted-s0')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.4"/><path d="M3 8a5 5 0 0 0 10 0M8 13v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span class="speak-label">Læs op</span>
+        </button>
+        <p>Når du tænker på et sted du er glad for, begynder kroppen at mærke det — som om du næsten er der. Det er ikke magi. Det er bare sådan hjernen virker.</p>
+        <p>Denne øvelse hjælper dig med at finde et sted eller en person i dit indre, som du kan vende tilbage til — når du har det svært.</p>
+        <p style="font-size:.88rem;color:var(--text-dim)">Du kan bruge øvelsen på to måder: tænk på et sted — eller tænk på en person. Begge virker.</p>
+      </div>
+      <div class="divider"></div>
+    </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
+    <!-- S1: TRYGT STED VISUALISERING -->
+    <section id="trygsted-s1">
+      <div class="content">
+        <div class="slabel">Mulighed 1</div>
+        <h2>Tænk på et sted</h2>
+        <button class="speak-btn" onclick="toggleSpeakTrygsted('trygsted-s1')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.4"/><path d="M3 8a5 5 0 0 0 10 0M8 13v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span class="speak-label">Læs op</span>
+        </button>
+        <p>Sæt dig godt til rette. Luk øjnene, hvis du vil.</p>
+
+        <div class="tryg-step"><div class="tryg-step-num">TRIN 1</div><p>Tænk på et sted, der giver dig ro. Det kan være et sted du kender — en have, et rum, en strand. Eller et sted du drømmer om. Det behøver ikke at være rigtigt.</p></div>
+        <div class="tryg-step"><div class="tryg-step-num">TRIN 2</div><p>Forestil dig at du er der nu. Hvad ser du? Hvad hører du? Mærk hvad der er under dine fødder og i dine hænder.</p></div>
+        <div class="tryg-step"><div class="tryg-step-num">TRIN 3</div><p>Læg mærke til din krop. Mærker du noget i brystet? I skuldrene? I vejrtrækningen? Bliv bare ved det et øjeblik.</p></div>
+        <div class="tryg-step"><div class="tryg-step-num">TRIN 4</div><p>Giv stedet et navn — ét ord. Det er dit sted. Du kan vende tilbage til det, når du har brug for ro.</p></div>
+
+        <p style="font-size:.85rem;color:var(--text-dim);margin-top:20px">Brug så lang tid du vil. Der er ingen rigtig eller forkert måde.</p>
+      </div>
+      <div class="divider"></div>
+    </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
+    <!-- S2: FAMILIEGROUNDING -->
+    <section id="trygsted-s2">
+      <div class="content">
+        <div class="slabel">Mulighed 2</div>
+        <h2>Tænk på en person</h2>
+        <button class="speak-btn" onclick="toggleSpeakTrygsted('trygsted-s2')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.4"/><path d="M3 8a5 5 0 0 0 10 0M8 13v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span class="speak-label">Læs op</span>
+        </button>
+        <p>Tryghed kan også komme fra et menneske — en stemme, et ansigt, en berøring. Det kan være nogen du holder af nu, eller nogen du savner.</p>
+
+        <div class="tryg-step"><div class="tryg-step-num">TRIN 1</div><p>Tænk på en person du holder af — familie, ven, et barn. Det kan også være en gruppe: en moske, en kirke, et nabolag, mennesker du har følt dig hjemme hos.</p></div>
+        <div class="tryg-step"><div class="tryg-step-num">TRIN 2</div><p>Husk noget konkret: deres stemme, deres latter, en duft du forbinder med dem, en hånd der rørte din skulder.</p></div>
+        <div class="tryg-step"><div class="tryg-step-num">TRIN 3</div><p>Forestil dig at de er tæt på dig nu. Læg mærke til hvad det gør i din krop — en varme, et roligere åndedræt, noget der letter lidt.</p></div>
+        <div class="tryg-step"><div class="tryg-step-num">TRIN 4</div><p>Bliv ved den følelse. Kærligheden til dem er stadig i dig — uanset afstand.</p></div>
+
+        <p style="font-size:.85rem;color:var(--text-dim);margin-top:16px">Hvis øvelsen vækker sorg eller savn, er det helt normalt. Tal med din behandler, hvis noget er svært.</p>
+      </div>
+    </section>
+
+  </div>
+</div><!-- /trygsted-screen -->
+
+
+<!-- GROUNDING -->
+<style>
+  #module-grounding-screen { align-items:flex-start;padding:0;overflow-y:auto;justify-content:flex-start; }
+  #module-grounding-content { width:100%;min-height:100%; }
+  .ground-step {
+    display:flex;gap:14px;align-items:flex-start;padding:14px 0;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  .ground-step:last-child { border-bottom:none; }
+  .ground-num {
+    min-width:32px;height:32px;border-radius:50%;
+    background:rgba(74,196,143,0.15);border:1.5px solid var(--calm);
+    display:flex;align-items:center;justify-content:center;
+    font-size:.85rem;font-weight:700;color:var(--calm);flex-shrink:0;
+  }
+  .ground-step p { margin:0;font-size:.93rem;line-height:1.65; }
+  .ground-step strong { color:var(--calm); }
+</style>
+
+<div class="screen out gone" id="module-grounding-screen">
+  <div class="back-bar">
+    <button class="back-btn" onclick="closeModuleGrounding()">← <span>Tilbage til oversigt</span></button>
+    <span class="back-title">Land her og nu</span>
+  </div>
+
+  <div id="module-grounding-content">
+
+    <!-- S0: INTRO -->
+    <section id="grounding-s0">
+      <div class="content">
+        <div class="slabel">Øvelse · Kom tilbage</div>
+        <h1>Land<br><em>her og nu</em></h1>
+        <button class="speak-btn" onclick="toggleSpeakGrounding('grounding-s0')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.4"/><path d="M3 8a5 5 0 0 0 10 0M8 13v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span class="speak-label">Læs op</span>
+        </button>
+        <p>Når tankerne løber, eller kroppen føles fjern og urolig, kan det hjælpe at stoppe op og mærke det der er her — lige nu.</p>
+        <p>Disse øvelser bruger kroppen og sanserne til at <strong>bringe dig tilbage til det sted du er</strong> — og minde kroppen om at du er i sikkerhed nu.</p>
+        <p style="font-size:.85rem;color:var(--text-dim)">Du kan bruge dem overalt — hjemme, på gaden, i et venteværelse. De tager under et minut.</p>
+      </div>
+      <div class="divider"></div>
+    </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
+    <!-- S1: 5-4-3-2-1 -->
+    <section id="grounding-s1">
+      <div class="content">
+        <div class="slabel">Øvelse 1 · Sanserne</div>
+        <h2>Se — rør — hør — lugt — smag</h2>
+        <button class="speak-btn" onclick="toggleSpeakGrounding('grounding-s1')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.4"/><path d="M3 8a5 5 0 0 0 10 0M8 13v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span class="speak-label">Læs op</span>
+        </button>
+        <p>Kig dig roligt omkring. Navngiv hvad du finder — stille for dig selv, eller højt. Tag god tid til hvert trin.</p>
+
+        <div style="margin-top:16px;">
+          <div class="ground-step"><div class="ground-num">5</div><p><strong>Ting du kan se.</strong> Kig dig omkring. Find fem ting i rummet — nævn dem stille for dig selv eller højt. En dør. Et vindue. En lampe. En farve. En skygge.</p></div>
+          <div class="ground-step"><div class="ground-num">4</div><p><strong>Ting du kan røre ved.</strong> Mærk fire overflader med hænderne. Gulvet under dine fødder. Tøjet på din arm. En kold flade. Et stof.</p></div>
+          <div class="ground-step"><div class="ground-num">3</div><p><strong>Lyde du kan høre.</strong> Luk øjnene et øjeblik og lyt. Trafik udefra? Din egen vejrtrækning? En fugls sang? Et køleskabs summen?</p></div>
+          <div class="ground-step"><div class="ground-num">2</div><p><strong>Ting du kan lugte.</strong> Træk vejret dybt og læg mærke til to dufte — eller bare luften. Frisk? Varm? Tør? Blid?</p></div>
+          <div class="ground-step"><div class="ground-num">1</div><p><strong>Noget du kan smage.</strong> Læg mærke til smagen i munden. Tag en slurk vand, hvis du har det. Mærk det kolde i halsen.</p></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+    </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
+    <!-- S2: BEVÆGELSE -->
+    <section id="grounding-s2">
+      <div class="content">
+        <div class="slabel">Øvelse 2 · Bevægelse</div>
+        <h2>Mærk din krop</h2>
+        <button class="speak-btn" onclick="toggleSpeakGrounding('grounding-s2')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.4"/><path d="M3 8a5 5 0 0 0 10 0M8 13v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span class="speak-label">Læs op</span>
+        </button>
+        <p>Sommetider er ord og tanker ikke nok. Kroppen sidder fast — og den har brug for at mærke sig selv. Disse bevægelser er enkle og kan laves siddende eller stående.</p>
+
+        <div style="margin-top:16px;">
+          <div class="ground-step"><div class="ground-num">1</div><p><strong>Stamp i gulvet.</strong> Mærk dine fødder. Stamp langsomt tre gange og mærk trykket rejse op igennem benene. Du er her. Du er i din krop.</p></div>
+          <div class="ground-step"><div class="ground-num">2</div><p><strong>Pres hænderne mod hinanden.</strong> Pres dine håndflader mod hinanden foran brystet i 5 sekunder. Slap af. Mærk varmen og prikken i hænderne.</p></div>
+          <div class="ground-step"><div class="ground-num">3</div><p><strong>Stræk armene over hovedet.</strong> Tag en dyb indånding og stræk armene så langt op som muligt. Pust langsomt ud og lad armene falde. Mærk vægten af dem.</p></div>
+          <div class="ground-step"><div class="ground-num">4</div><p><strong>Rul skuldrene.</strong> Løft skuldrene op mod ørerne — hold et sekund — og lad dem falde tungt ned. Gentag to gange. Mærk spændingen give efter.</p></div>
+          <div class="ground-step"><div class="ground-num">5</div><p><strong>Sæt dig godt til rette.</strong> Mærk stolen eller gulvet bære dig. Du behøver ikke holde dig selv oppe. Kroppen bæres. Du er i sikkerhed.</p></div>
+        </div>
+
+
+      </div>
+    </section>
+
+  </div>
+</div><!-- /grounding-screen -->
+
+
+<!-- ÅNDEDRÆT & RO -->
+<style>
+  #module-aandero-screen { align-items:flex-start;padding:0;overflow-y:auto;justify-content:flex-start; }
+  #module-aandero-content { width:100%;min-height:100%; }
+  .ro-quote {
+    border-left:3px solid rgba(74,196,143,0.4);
+    padding:14px 18px;margin:16px 0;
+    font-style:italic;font-size:.95rem;color:var(--text-dim);
+    line-height:1.7;
+  }
+  .ro-pause-dot {
+    display:flex;justify-content:center;gap:8px;margin:24px 0;
+  }
+  .ro-pause-dot span {
+    width:8px;height:8px;border-radius:50%;background:rgba(74,196,143,0.3);
+    animation:roPulse 3s ease-in-out infinite;
+  }
+  .ro-pause-dot span:nth-child(2){animation-delay:.6s;}
+  .ro-pause-dot span:nth-child(3){animation-delay:1.2s;}
+  @keyframes roPulse {
+    0%,100%{background:rgba(74,196,143,0.2);transform:scale(1);}
+    50%{background:rgba(74,196,143,0.6);transform:scale(1.3);}
+  }
+</style>
+
+<div class="screen out gone" id="module-aandero-screen">
+  <div class="back-bar">
+    <button class="back-btn" onclick="closeModuleAandero()">← <span>Tilbage til oversigt</span></button>
+    <span class="back-title">Et øjebliks ro</span>
+  </div>
+
+  <div id="module-aandero-content">
+
+    <!-- S0: INTRO -->
+    <section id="aandero-s0">
+      <div class="content">
+        <div class="slabel">Øvelse · Ro og stilhed</div>
+        <h1>Et øjebliks<br><em>ro</em></h1>
+        <button class="speak-btn" onclick="toggleSpeakAandero('aandero-s0')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.4"/><path d="M3 8a5 5 0 0 0 10 0M8 13v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span class="speak-label">Læs op</span>
+        </button>
+        <p>I mange kulturer og religioner bruger man åndedrættet og stilheden til at finde ro indeni — i bøn, i meditation, eller bare i en pause fra en hård dag.</p>
+        <p>Denne øvelse giver dig et øjeblik til dig selv. <strong>Ingen krav. Ingen rigtig eller forkert måde.</strong></p>
+        <p style="font-size:.85rem;color:var(--text-dim)">Brug den som du vil — med bøn, med tanker, eller bare med vejrtrækning og stilhed.</p>
+      </div>
+      <div class="divider"></div>
+    </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
+    <!-- S1: GUIDET PAUSE -->
+    <section id="aandero-s1">
+      <div class="content">
+        <div class="slabel">Øvelse 1 · Stilhed</div>
+        <h2>Giv dig selv et øjeblik</h2>
+        <button class="speak-btn" onclick="toggleSpeakAandero('aandero-s1')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.4"/><path d="M3 8a5 5 0 0 0 10 0M8 13v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span class="speak-label">Læs op</span>
+        </button>
+
+        <p>Find en stilling der er behagelig. Luk øjnene, hvis du har lyst. Lad hænderne hvile.</p>
+
+        <div class="ro-pause-dot"><span></span><span></span><span></span></div>
+
+        <p>Træk vejret ind — langsomt — og mærk brystet og maven udvide sig.</p>
+        <p>Pust roligt ud. Lad vejrtrækningen falde til ro af sig selv.</p>
+
+        <div class="ro-pause-dot"><span></span><span></span><span></span></div>
+
+        <p>Lad tankerne komme og gå. Du behøver ikke gøre noget ved dem. Du behøver ikke gøre noget.</p>
+        <p>I dette øjeblik er du i sikkerhed. Du trækker vejret. Du er her.</p>
+
+        <div class="ro-pause-dot"><span></span><span></span><span></span></div>
+
+        <p>Hvis du ønsker det: bring en tanke om taknemmelighed frem — noget lille, noget nærværende. Et lys. En kop te. En stemme du holder af.</p>
+        <p>Hvis du beder: lad dette øjeblik være din bøn. Ordene behøver ikke komme — stilheden er nok.</p>
+
+        <div class="ro-pause-dot"><span></span><span></span><span></span></div>
+
+        <p>Bliv her så længe du ønsker. Og når du er klar: åbn øjnene langsomt og mærk omgivelserne omkring dig.</p>
+
+
+      </div>
+      <div class="divider"></div>
+    </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
+    <!-- S2: PROGRESSIV MUSKELRELAKSATION -->
+    <section id="aandero-s2">
+      <div class="content">
+        <div class="slabel">Øvelse 2 · Krop</div>
+        <h2>Spænd op — slap af</h2>
+        <button class="speak-btn" onclick="toggleSpeakAandero('aandero-s2')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" stroke="currentColor" stroke-width="1.4"/><path d="M3 8a5 5 0 0 0 10 0M8 13v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span class="speak-label">Læs op</span>
+        </button>
+        <p>Mange bærer spænding i kroppen uden at mærke det. Denne øvelse er enkel: du spænder op ét sted ad gangen — og slipper. Kroppen lærer at mærke forskel og give slip. Den er god inden søvn eller efter en hård dag.</p>
+        <p style="font-size:.85rem;color:var(--text-dim)">Spænd hvert sted i 5 sekunder — og slap helt af i 10. Mærk forskellen.</p>
+
+        <div style="margin-top:16px;">
+          <div class="ground-step"><div class="ground-num">1</div><p><strong>Hænder og underarme.</strong> Knyt hænderne hårdt — hold — og slap af. Mærk varmen og tyngden der breder sig.</p></div>
+          <div class="ground-step"><div class="ground-num">2</div><p><strong>Skuldre.</strong> Træk skuldrene op mod ørerne — hold — og lad dem falde tungt ned. Mærk vægten give slip.</p></div>
+          <div class="ground-step"><div class="ground-num">3</div><p><strong>Ansigt.</strong> Knib øjnene sammen og spænd kinderne — hold — og lad ansigtet blive blødt. Mærk panden glatte sig ud.</p></div>
+          <div class="ground-step"><div class="ground-num">4</div><p><strong>Mave.</strong> Spænd mavemusklen — hold — og pust roligt ud mens maven falder. Mærk, at du tør lade kroppen være blød.</p></div>
+          <div class="ground-step"><div class="ground-num">5</div><p><strong>Ben og fødder.</strong> Pres hælene mod gulvet og spænd lårene — hold — og lad det hele slappe af. Mærk benene falde tungt.</p></div>
+        </div>
+
+        <p style="font-size:.85rem;color:var(--text-dim);margin-top:16px">Afslut med tre rolige vejrtrækninger. Du er færdig.</p>
+      </div>
+    </section>
+
+  </div>
+</div><!-- /aandero-screen -->
+
 
 <!-- ===================== INTRODUKTIONSMODUL ===================== -->
 <style>
@@ -3484,6 +4162,8 @@ function toggleSpeak5(sid) { if (screenScripts[sid]) { toggleSpeakScreen(sid); r
       </div>
     </section>
 
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+
     <!-- M0-S1: HVAD ER ET TRAUME / PTSD -->
     <section id="m0s1">
       <div class="content">
@@ -3533,6 +4213,8 @@ function toggleSpeak5(sid) { if (screenScripts[sid]) { toggleSpeakScreen(sid); r
         </div>
 </div>
     </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 
     <!-- M0-S2: HVAD ER PTSD -->
     <section id="m0s2">
@@ -3599,6 +4281,8 @@ function toggleSpeak5(sid) { if (screenScripts[sid]) { toggleSpeakScreen(sid); r
         </div>
 </div>
     </section>
+
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 
     <!-- M0-S3: AFSLUTNING -->
     <section id="m0s3">
@@ -3677,8 +4361,8 @@ const sections0 = document.querySelectorAll('#module0-content section');
 
 function openModule0() {
   window.speechSynthesis && window.speechSynthesis.cancel();
+  module0Screen.scrollTop = 0;
   goScreen('overview', 'module0');
-  setTimeout(() => module0Screen.scrollTop = 0, 50);
 }
 function closeModule0() {
   window.speechSynthesis && window.speechSynthesis.cancel();
@@ -3935,8 +4619,9 @@ const sectionsMot = document.querySelectorAll('#module-mot-content section');
 
 function openModuleMot() {
   window.speechSynthesis && window.speechSynthesis.cancel();
+  moduleMotScreen.scrollTop = 0;
   goScreen('overview', 'module-mot');
-  setTimeout(() => { moduleMotScreen.scrollTop = 0; loadMot(); }, 50);
+  setTimeout(() => loadMot(), 50);
 }
 function closeModuleMot() {
   window.speechSynthesis && window.speechSynthesis.cancel();
@@ -4091,9 +4776,7 @@ Object.assign(screenScripts, {
         <div class="scroll-hint"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 9l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Rul ned for at læse mere</div>
       </div>
     </section>
-    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
-
-    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
+    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 <section id="mforl-s1">
       <div class="content">
         <div class="slabel">Del 1 af 2</div>
@@ -4136,10 +4819,7 @@ Object.assign(screenScripts, {
             <li>Din behandler guider dig og tilpasser forløbet til dig</li>
           </ul>
         </div>
-</div>
     </section>
-    <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
-
     <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 <section id="mforl-s2">
       <div class="content">
@@ -4175,8 +4855,8 @@ const sectionsForl = document.querySelectorAll('#module-forl-content section');
 
 function openModuleForl() {
   window.speechSynthesis && window.speechSynthesis.cancel();
+  moduleForlScreen.scrollTop = 0;
   goScreen('overview', 'module-forl');
-  setTimeout(() => moduleForlScreen.scrollTop = 0, 50);
 }
 function closeModuleForl() {
   window.speechSynthesis && window.speechSynthesis.cancel();
@@ -4273,6 +4953,8 @@ Object.assign(screenScripts, {
       </div>
     </section>
 
+    
+
     <!-- DEP-S1: HVAD ER DEPRESSION -->
     <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 <section id="mdep-s1">
@@ -4319,6 +5001,8 @@ Object.assign(screenScripts, {
         </div>
 </div>
     </section>
+
+    
 
     <!-- DEP-S2: FORBINDELSEN TIL PTSD -->
     <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
@@ -4370,6 +5054,8 @@ Object.assign(screenScripts, {
         </div>
 </div>
     </section>
+
+    
 
     <!-- DEP-S3: DEN ONDE CIRKEL -->
     <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
@@ -4425,6 +5111,8 @@ Object.assign(screenScripts, {
         </div>
 </div>
     </section>
+
+    
 
     <!-- DEP-S4: AFSLUTNING -->
     <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
@@ -4500,8 +5188,8 @@ const sectionsDep = document.querySelectorAll('#module-dep-content section');
 
 function openModuleDep() {
   window.speechSynthesis && window.speechSynthesis.cancel();
+  moduleDepScreen.scrollTop = 0;
   goScreen('overview', 'module-dep');
-  setTimeout(() => moduleDepScreen.scrollTop = 0, 50);
 }
 function closeModuleDep() {
   window.speechSynthesis && window.speechSynthesis.cancel();
@@ -4575,26 +5263,29 @@ Object.assign(screenScripts, {
         <p>Medicin er et emne, mange har stærke følelser om. Nogle håber, det kan hjælpe. Andre er usikre eller bekymrede. Begge dele er helt forståeligt.</p>
         <p>I dette modul ser vi på <strong>hvad medicin kan gøre for dig</strong>, <strong>hvad det ikke kan</strong>, og <strong>hvordan du finder ud af, om det er noget for dig</strong>.</p>
 
-        <!-- Pill animation -->
-        <div style="display:flex;justify-content:center;margin:40px 0;height:120px;">
-          <svg viewBox="0 0 360 120" width="100%" style="max-width:400px">
-            <!-- Gentle pulse circles -->
-            <circle cx="180" cy="60" r="30" fill="rgba(107,163,214,0.08)" stroke="none">
-              <animate attributeName="r" values="30;48;30" dur="4s" repeatCount="indefinite"/>
-              <animate attributeName="opacity" values="0.4;0;0.4" dur="4s" repeatCount="indefinite"/>
+        <!-- Medicine animation: clean capsule with pulse -->
+        <div style="display:flex;justify-content:center;margin:40px 0;height:100px;">
+          <svg viewBox="0 0 200 100" width="200" height="100">
+
+            <!-- Pulserende baggrundscirkel -->
+            <circle cx="100" cy="50" r="38" fill="rgba(107,163,214,0.07)">
+              <animate attributeName="r" values="38;50;38" dur="6s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.5;0;0.5" dur="6s" repeatCount="indefinite"/>
             </circle>
-            <circle cx="180" cy="60" r="30" fill="rgba(107,163,214,0.06)" stroke="none">
-              <animate attributeName="r" values="30;48;30" dur="4s" repeatCount="indefinite" begin="1.3s"/>
-              <animate attributeName="opacity" values="0.4;0;0.4" dur="4s" repeatCount="indefinite" begin="1.3s"/>
-            </circle>
-            <!-- Capsule shape -->
-            <rect x="148" y="46" width="64" height="28" rx="14" fill="none" stroke="rgba(107,163,214,0.4)" stroke-width="1.5"/>
-            <rect x="148" y="46" width="32" height="28" rx="14" fill="rgba(107,163,214,0.12)"/>
-            <rect x="180" y="46" width="32" height="28" rx="14" fill="rgba(79,195,161,0.12)"/>
-            <line x1="180" y1="46" x2="180" y2="74" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-            <!-- Small figure next to it -->
-            <text x="100" y="75" text-anchor="middle" font-size="24">🧍</text>
-            <line x1="114" y1="62" x2="146" y2="60" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="3,3"/>
+
+            <!-- Kapsel -->
+            <rect x="54" y="34" width="92" height="32" rx="16"
+              fill="none" stroke="rgba(107,163,214,0.55)" stroke-width="1.8"/>
+            <!-- Venstre halvdel -->
+            <path d="M54 50 Q54 34 70 34 L100 34 L100 66 L70 66 Q54 66 54 50 Z"
+              fill="rgba(107,163,214,0.25)"/>
+            <!-- Højre halvdel -->
+            <path d="M146 50 Q146 66 130 66 L100 66 L100 34 L130 34 Q146 34 146 50 Z"
+              fill="rgba(79,195,161,0.25)"/>
+            <!-- Midterlinje -->
+            <line x1="100" y1="35" x2="100" y2="65"
+              stroke="rgba(255,255,255,0.2)" stroke-width="1.2"/>
+
           </svg>
         </div>
 
@@ -4604,6 +5295,8 @@ Object.assign(screenScripts, {
         </div>
       </div>
     </section>
+
+    
 
     <!-- MED-S1: DIN BESLUTNING -->
     <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
@@ -4647,6 +5340,8 @@ Object.assign(screenScripts, {
         </div>
 </div>
     </section>
+
+    
 
     <!-- MED-S2: SKAM OG KRYKKEN -->
     <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
@@ -4694,6 +5389,8 @@ Object.assign(screenScripts, {
 </div>
     </section>
 
+    
+
     <!-- MED-S3: HVAD MEDICIN KAN -->
     <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 <section id="mmed-s3">
@@ -4738,6 +5435,8 @@ Object.assign(screenScripts, {
         </div>
 </div>
     </section>
+
+    
 
     <!-- MED-S4: STABILT INDTAG -->
     <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
@@ -4792,6 +5491,8 @@ Object.assign(screenScripts, {
 </div>
     </section>
 
+    
+
     <!-- MED-S5: BIVIRKNINGER -->
     <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 <section id="mmed-s5">
@@ -4838,6 +5539,8 @@ Object.assign(screenScripts, {
         </div>
 </div>
     </section>
+
+    
 
     <!-- MED-S6: AFSLUTNING -->
     <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
@@ -4925,8 +5628,8 @@ const sectionsMed = document.querySelectorAll('#module-med-content section');
 
 function openModuleMed() {
   window.speechSynthesis && window.speechSynthesis.cancel();
+  moduleMedScreen.scrollTop = 0;
   goScreen('overview', 'module-med');
-  setTimeout(() => moduleMedScreen.scrollTop = 0, 50);
 }
 function closeModuleMed() {
   window.speechSynthesis && window.speechSynthesis.cancel();
@@ -5034,6 +5737,8 @@ Object.assign(screenScripts, {
       </div>
     </section>
 
+    
+
     <!-- MIDTVEJ-S1: GENOPFRISKNING -->
     <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 <section id="mmidtvej-s1">
@@ -5077,6 +5782,8 @@ Object.assign(screenScripts, {
         </div>
 </div>
     </section>
+
+    
 
     <!-- MIDTVEJ-S2: HVOR ER DU NU -->
     <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
@@ -5139,6 +5846,8 @@ Object.assign(screenScripts, {
 </div>
     </section>
 
+    
+
     <!-- MIDTVEJ-S3: EMNER DER VENTER -->
     <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
 <section id="mmidtvej-s3">
@@ -5178,6 +5887,8 @@ Object.assign(screenScripts, {
         </div>
 </div>
     </section>
+
+    
 
     <!-- MIDTVEJ-S4: AFSLUTNING OG RETRIEVAL -->
     <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
@@ -5240,8 +5951,8 @@ const sectionsMidtvej = document.querySelectorAll('#module-midtvej-content secti
 
 function openModuleMidtvej() {
   window.speechSynthesis && window.speechSynthesis.cancel();
+  moduleMidtvejScreen.scrollTop = 0;
   goScreen('overview', 'module-midtvej');
-  setTimeout(() => moduleMidtvejScreen.scrollTop = 0, 50);
 }
 function closeModuleMidtvej() {
   window.speechSynthesis && window.speechSynthesis.cancel();
@@ -5299,16 +6010,363 @@ function toggleModRow(row) {
   }
 }
 
+// ===================== ØVELSESMODULER JS =====================
+
+// --- Åbn/luk funktioner ---
+function openModuleVejrtrae() {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  const ov = document.getElementById('overview-screen');
+  ov.classList.add('out'); setTimeout(() => ov.classList.add('gone'), 450);
+  const s = document.getElementById('module-vejrtrae-screen');
+  s.classList.remove('gone'); requestAnimationFrame(() => s.classList.remove('out'));
+  s.scrollTop = 0;
+}
+function closeModuleVejrtrae() {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  breath1Stop(); boxStop();
+  const s = document.getElementById('module-vejrtrae-screen');
+  s.classList.add('out'); setTimeout(() => s.classList.add('gone'), 450);
+  const ov = document.getElementById('overview-screen');
+  ov.classList.remove('gone'); requestAnimationFrame(() => ov.classList.remove('out'));
+}
+function openModuleTrygsted() {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  const ov = document.getElementById('overview-screen');
+  ov.classList.add('out'); setTimeout(() => ov.classList.add('gone'), 450);
+  const s = document.getElementById('module-trygsted-screen');
+  s.classList.remove('gone'); requestAnimationFrame(() => s.classList.remove('out'));
+  s.scrollTop = 0;
+}
+function closeModuleTrygsted() {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  const s = document.getElementById('module-trygsted-screen');
+  s.classList.add('out'); setTimeout(() => s.classList.add('gone'), 450);
+  const ov = document.getElementById('overview-screen');
+  ov.classList.remove('gone'); requestAnimationFrame(() => ov.classList.remove('out'));
+}
+function openModuleGrounding() {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  const ov = document.getElementById('overview-screen');
+  ov.classList.add('out'); setTimeout(() => ov.classList.add('gone'), 450);
+  const s = document.getElementById('module-grounding-screen');
+  s.classList.remove('gone'); requestAnimationFrame(() => s.classList.remove('out'));
+  s.scrollTop = 0;
+}
+function closeModuleGrounding() {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  const s = document.getElementById('module-grounding-screen');
+  s.classList.add('out'); setTimeout(() => s.classList.add('gone'), 450);
+  const ov = document.getElementById('overview-screen');
+  ov.classList.remove('gone'); requestAnimationFrame(() => ov.classList.remove('out'));
+}
+function openModuleAandero() {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  const ov = document.getElementById('overview-screen');
+  ov.classList.add('out'); setTimeout(() => ov.classList.add('gone'), 450);
+  const s = document.getElementById('module-aandero-screen');
+  s.classList.remove('gone'); requestAnimationFrame(() => s.classList.remove('out'));
+  s.scrollTop = 0;
+}
+function closeModuleAandero() {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  const s = document.getElementById('module-aandero-screen');
+  s.classList.add('out'); setTimeout(() => s.classList.add('gone'), 450);
+  const ov = document.getElementById('overview-screen');
+  ov.classList.remove('gone'); requestAnimationFrame(() => ov.classList.remove('out'));
+}
+
+// --- screenScripts for øvelsesmoduler ---
+Object.assign(screenScripts, {
+  'vejrtrae-s0': 'Når vi er urolige, trækker vi vejret hurtigt og kort. Det gør kroppen endnu mere urolig. Men hvis du trækker vejret langsomt og dybt, begynder kroppen at slappe af. Her er to øvelser. Brug den der passer til dig i dag.',
+  'vejrtrae-s1': 'Træk vejret stille ind gennem næsen. Hold et øjeblik. Pust derefter langsomt ud gennem munden, som når du puster på varm suppe for at køle den ned. Prøv at puste lidt længere ud end du trækker ind. Pilen viser dig hvornår du skal trække vejret ind, og hvornår du skal puste ud. Tryk på Start, og følg pilen.',
+  'vejrtrae-s2': 'Denne øvelse er god, når du er meget urolig og har brug for ro hurtigt. Du tæller til fire fire gange. Ind, hold, ud, hold. Tryk på Start. Prikken bevæger sig rundt langs firkantens sider og viser dig hvornår du skal trække vejret ind, hvornår du skal holde, og hvornår du skal puste ud. Gentag fire gange.',
+  'trygsted-s0': 'Når du tænker på et sted du er glad for, begynder kroppen at mærke det, næsten som om du er der. Denne øvelse hjælper dig med at finde et sådant sted i dit indre — et sted du kan vende tilbage til, når du har det svært. Du kan tænke på et sted, eller du kan tænke på en person. Begge virker.',
+  'trygsted-s1': 'Sæt dig godt til rette. Luk øjnene, hvis du vil. Tænk på et sted, der giver dig ro. Det kan være et sted du kender, eller et sted du drømmer om. Forestil dig at du er der nu. Hvad ser du? Hvad hører du? Mærk hvad der er under dine fødder og i dine hænder. Læg mærke til din krop. Mærker du noget i brystet? I skuldrene? Bliv bare ved det et øjeblik. Giv stedet et navn, ét ord. Det er dit sted. Du kan vende tilbage til det, når du har brug for ro.',
+  'trygsted-s2': 'Tryghed kan komme fra et menneske, en stemme, et ansigt. Tænk på en person du holder af, nu eller fra din fortid. Det kan også være en gruppe mennesker du har følt dig hjemme hos. Husk noget konkret fra dem, deres stemme, deres latter, en hånd på din skulder. Forestil dig at de er tæt på dig nu. Læg mærke til hvad det gør i din krop. Kærligheden til dem er stadig i dig, uanset afstand.',
+  'grounding-s0': 'Når tankerne løber, eller kroppen føles fjern og urolig, kan det hjælpe at stoppe op og mærke det der er her, lige nu. Disse øvelser hjælper dig med at komme tilbage til det sted du er. Du kan bruge dem overalt. De tager under et minut.',
+  'grounding-s1': 'Kig dig roligt omkring. Find fem ting du kan se. Navngiv dem stille for dig selv. Find derefter fire ting du kan røre ved. Mærk overfladen med hænderne. Luk øjnene og lyt efter tre lyde. Det kan være trafik, din vejrtrækning, en fuglesang. Træk vejret dybt og læg mærke til to dufte. Og til sidst, læg mærke til smagen i munden.',
+  'grounding-s2': 'Stamp roligt med begge fødder. Mærk at du har kontakt med gulvet. Du er her. Pres derefter dine håndflader mod hinanden foran brystet i fem sekunder. Slap af og mærk varmen i hænderne. Stræk armene over hovedet, tag en dyb indånding, og pust langsomt ud mens armene falder. Rul skuldrene, løft dem op og lad dem falde tungt ned. Til sidst, sæt dig godt til rette og mærk stolen eller gulvet bære dig. Du er i sikkerhed.',
+  'aandero-s0': 'I mange kulturer bruger man åndedrættet og stilheden til at finde ro indeni, i bøn, i meditation, eller i en pause fra en hård dag. Denne øvelse giver dig et øjeblik til dig selv. Ingen krav. Ingen rigtig eller forkert måde. Brug den som du vil.',
+  'aandero-s1': 'Find en stilling der er behagelig. Luk øjnene, hvis du vil. Lad hænderne hvile. Træk vejret langsomt ind og mærk maven stige. Pust roligt ud. Lad vejrtrækningen falde til ro af sig selv. Lad tankerne komme og gå. Du behøver ikke gøre noget ved dem. I dette øjeblik er du i sikkerhed. Du trækker vejret. Du er her. Hvis du vil, bring en tanke om noget du er taknemmelig for. Noget lille. Et lys. En kop te. En stemme du holder af. Bliv her så længe du vil.',
+  'aandero-s2': 'Denne øvelse er god inden søvn eller efter en hård dag. Du spænder op ét sted ad gangen, og slipper igen. Knyt hænderne hårdt, hold i fem sekunder, og slap af. Mærk varmen der breder sig. Træk skuldrene op mod ørerne, hold, og lad dem falde tungt ned. Knib øjnene sammen, hold, og lad ansigtet blive blødt. Spænd mavemusklen, hold, og pust roligt ud. Pres hælene mod gulvet, hold, og lad benene slappe af. Slut med tre rolige vejrtrækninger.',
+});
+
+// --- Oplæsning: wrappers ---
+function toggleSpeakVejrtrae(sid) { if (screenScripts[sid]) { toggleSpeakScreen(sid); return; } toggleSpeak(sid); }
+function toggleSpeakTrygsted(sid) { if (screenScripts[sid]) { toggleSpeakScreen(sid); return; } toggleSpeak(sid); }
+function toggleSpeakGrounding(sid) { if (screenScripts[sid]) { toggleSpeakScreen(sid); return; } toggleSpeak(sid); }
+function toggleSpeakAandero(sid) { if (screenScripts[sid]) { toggleSpeakScreen(sid); return; } toggleSpeak(sid); }
+
+// ===================== VEJRTRÆKNING ANIMATIONER =====================
+
+// --- Øvelse 1: Pil-animation (ind 5s / ud 5s) ---
+// Bruger CSS-keyframes injiceret via <style> for perfekt sync — ingen JS-timer drift
+let breath1Running = false;
+let breath1CycleCount = 0;
+let breath1Timeout = null;
+const BREATH1_IN = 5, BREATH1_OUT = 5, BREATH1_MAX = 5;
+
+function breath1Toggle() {
+  breath1Running ? breath1Stop() : breath1Start();
+}
+
+function breath1Start() {
+  breath1Running = true;
+  breath1CycleCount = 0;
+  document.getElementById('breath1-startbtn').textContent = '■ Stop';
+  breath1RunPhase('ind');
+}
+
+function breath1Stop() {
+  breath1Running = false;
+  clearTimeout(breath1Timeout);
+  // Skjul begge pile
+  ['bal-line','bal-head','breath1-left-label'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.transition = 'none'; el.setAttribute('opacity','0'); }
+  });
+  ['bar-line','bar-head','breath1-right-label'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.transition = 'none'; el.setAttribute('opacity','0'); }
+  });
+  const ph = document.getElementById('breath1-phase');
+  const cy = document.getElementById('breath1-cycles');
+  if (ph) ph.textContent = '';
+  if (cy) cy.textContent = '';
+  const btn = document.getElementById('breath1-startbtn');
+  if (btn) btn.textContent = '▶ Start';
+}
+
+function breath1SetOpacity(ids, opacity, transitionSecs) {
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.transition = transitionSecs ? `opacity ${transitionSecs}s ease` : 'none';
+    el.setAttribute('opacity', opacity);
+  });
+}
+
+function breath1RunPhase(phase) {
+  if (!breath1Running) return;
+  const phEl = document.getElementById('breath1-phase');
+  const cyEl = document.getElementById('breath1-cycles');
+  const duration = phase === 'ind' ? BREATH1_IN : BREATH1_OUT;
+
+  if (phase === 'ind') {
+    // Vis venstre pil (ind), skjul højre
+    breath1SetOpacity(['bal-line','bal-head','breath1-left-label'], 1, 0.4);
+    breath1SetOpacity(['bar-line','bar-head','breath1-right-label'], 0, 0.4);
+    if (phEl) phEl.textContent = 'Træk vejret ind — gennem næsen';
+
+    // Animer pilen: start lille og bevæg sig mod personen
+    animateArrowIn(duration);
+
+  } else {
+    // Vis højre pil (ud), skjul venstre
+    breath1SetOpacity(['bal-line','bal-head','breath1-left-label'], 0, 0.4);
+    breath1SetOpacity(['bar-line','bar-head','breath1-right-label'], 1, 0.4);
+    if (phEl) phEl.textContent = 'Pust langsomt ud — gennem munden';
+
+    animateArrowOut(duration);
+  }
+
+  breath1Timeout = setTimeout(() => {
+    if (!breath1Running) return;
+    if (phase === 'ind') {
+      breath1RunPhase('ud');
+    } else {
+      breath1CycleCount++;
+      if (cyEl) cyEl.textContent = `${breath1CycleCount} / ${BREATH1_MAX} vejrtrækninger`;
+      if (breath1CycleCount >= BREATH1_MAX) {
+        if (phEl) phEl.textContent = 'Godt klaret ✓';
+        breath1Stop();
+        const btn = document.getElementById('breath1-startbtn');
+        if (btn) btn.textContent = '↺ Igen';
+      } else {
+        breath1RunPhase('ind');
+      }
+    }
+  }, duration * 1000);
+}
+
+// Pil ind: bevæger sig fra venstre mod personen (x1: 28→60, x2: 74→97 fast)
+function animateArrowIn(durationSecs) {
+  const line = document.getElementById('bal-line');
+  const head = document.getElementById('bal-head');
+  if (!line || !head) return;
+
+  // Nulstil til startposition
+  line.setAttribute('x1', '28'); line.setAttribute('x2', '74');
+  head.setAttribute('points', '77,22 68,17 68,27');
+
+  const start = performance.now();
+  const ms = durationSecs * 1000;
+
+  function step(now) {
+    if (!breath1Running) return;
+    const t = Math.min((now - start) / ms, 1);
+    const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t; // ease-in-out
+    // Pilen nærmer sig: x1 går 28→58, x2 fast på 74 (pilens spids nærmer sig)
+    const x1 = 28 + ease * 30;
+    line.setAttribute('x1', x1);
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// Pil ud: bevæger sig fra munden ud mod højre (x1: 148→120)
+function animateArrowOut(durationSecs) {
+  const line = document.getElementById('bar-line');
+  const head = document.getElementById('bar-head');
+  if (!line || !head) return;
+
+  // Ud-pil: starter ved personen og bevæger sig mod venstre (væk fra personen)
+  // x2 fast ved personen (~72), x1 bevæger sig fra 28 → -2 (ud af billedet)
+  line.setAttribute('x1', '28'); line.setAttribute('x2', '72');
+  head.setAttribute('points', '25,34 34,29 34,39');
+
+  const start = performance.now();
+  const ms = durationSecs * 1000;
+
+  function step(now) {
+    if (!breath1Running) return;
+    const t = Math.min((now - start) / ms, 1);
+    const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+    // Pilen vokser mod venstre: x1 bevæger sig fra 28 → -4
+    const x1 = 28 - ease * 32;
+    line.setAttribute('x1', x1);
+    head.setAttribute('points', `${x1-3},34 ${x1+9},29 ${x1+9},39`);
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+
+// --- Øvelse 2: Box breathing (4-4-4-4) ---
+let boxRunning = false;
+let boxTimeout = null;
+let boxCycleCount = 0;
+const BOX_SEC = 4, BOX_MAX = 4;
+const BOX_PERIMETER = 800; // 4 × 200
+
+function boxToggle() {
+  boxRunning ? boxStop() : boxStart();
+}
+function boxStart() {
+  boxRunning = true;
+  boxCycleCount = 0;
+  document.getElementById('box-startbtn').textContent = '■ Stop';
+  const dot = document.getElementById('box-dot');
+  if (dot) dot.style.opacity = '1';
+  boxRunPhase(0, 0); // phase 0 = ind (top edge)
+}
+function boxStop() {
+  boxRunning = false;
+  clearTimeout(boxTimeout);
+  const prog = document.getElementById('box-progress');
+  const dot = document.getElementById('box-dot');
+  const btn = document.getElementById('box-startbtn');
+  const ph = document.getElementById('box-phase');
+  const tm = document.getElementById('box-timer');
+  const cy = document.getElementById('box-cycles');
+  if (prog) { prog.style.transition = 'none'; prog.style.strokeDashoffset = BOX_PERIMETER; }
+  if (dot) dot.style.opacity = '0';
+  if (btn) btn.textContent = '▶ Start';
+  if (ph) ph.textContent = '';
+  if (tm) tm.textContent = '';
+  if (cy) cy.textContent = '';
+}
+
+// phases: 0=ind(top→right), 1=hold(right→bottom), 2=ud(bottom→left), 3=hold(left→top)
+const boxPhaseLabels = ['IND · 4 sek', 'HOLD · 4 sek', 'UD · 4 sek', 'HOLD · 4 sek'];
+// Corner positions (cx,cy) of the box: TL, TR, BR, BL
+const boxCorners = [[0,0],[200,0],[200,200],[0,200]];
+
+function boxRunPhase(phase, cyclesSoFar) {
+  if (!boxRunning) return;
+  const prog = document.getElementById('box-progress');
+  const dot = document.getElementById('box-dot');
+  const phEl = document.getElementById('box-phase');
+  const tmEl = document.getElementById('box-timer');
+  const cyEl = document.getElementById('box-cycles');
+  if (!prog || !dot) return;
+
+  // dashoffset: 800 = nothing drawn. Each side = 200.
+  // After phase n, (n+1) sides are drawn, so offset = 800 - (n+1)*200
+  const targetOffset = BOX_PERIMETER - (phase + 1) * 200;
+  prog.style.transition = `stroke-dashoffset ${BOX_SEC}s linear`;
+  prog.style.strokeDashoffset = targetOffset;
+
+  // Animate dot along the edge
+  // Start corner for this phase
+  const startCorner = boxCorners[phase];
+  const endCorner = boxCorners[(phase + 1) % 4];
+  dot.style.transition = 'none';
+  dot.setAttribute('cx', startCorner[0]);
+  dot.setAttribute('cy', startCorner[1]);
+  // Use CSS animation via keyframe trick — we'll do JS lerp instead
+  const startTime = performance.now();
+  function animDot(now) {
+    if (!boxRunning) return;
+    const t = Math.min((now - startTime) / (BOX_SEC * 1000), 1);
+    const cx = startCorner[0] + (endCorner[0] - startCorner[0]) * t;
+    const cy = startCorner[1] + (endCorner[1] - startCorner[1]) * t;
+    dot.setAttribute('cx', cx);
+    dot.setAttribute('cy', cy);
+    if (t < 1) requestAnimationFrame(animDot);
+  }
+  requestAnimationFrame(animDot);
+
+  if (phEl) phEl.textContent = boxPhaseLabels[phase];
+  let rem = BOX_SEC;
+  if (tmEl) tmEl.textContent = rem;
+  const tick = setInterval(() => {
+    if (!boxRunning) { clearInterval(tick); return; }
+    rem -= 1;
+    if (tmEl) tmEl.textContent = rem > 0 ? rem : '';
+    if (rem <= 0) clearInterval(tick);
+  }, 1000);
+
+  boxTimeout = setTimeout(() => {
+    if (!boxRunning) return;
+    const nextPhase = (phase + 1) % 4;
+    if (nextPhase === 0) {
+      // Completed a full cycle — reset drawing
+      prog.style.transition = 'none';
+      prog.style.strokeDashoffset = BOX_PERIMETER;
+      boxCycleCount++;
+      if (cyEl) cyEl.textContent = `${boxCycleCount} / ${BOX_MAX} runder`;
+      if (boxCycleCount >= BOX_MAX) {
+        if (phEl) phEl.textContent = 'Godt klaret ✓';
+        if (tmEl) tmEl.textContent = '';
+        boxStop();
+        const btn = document.getElementById('box-startbtn');
+        if (btn) btn.textContent = '↺ Igen';
+        return;
+      }
+      // Small pause before next cycle starts
+      boxTimeout = setTimeout(() => boxRunPhase(0, boxCycleCount), 300);
+    } else {
+      boxRunPhase(nextPhase, cyclesSoFar);
+    }
+  }, BOX_SEC * 1000);
+}
+
 let allOpen = false;
 function toggleAllSections() {
   allOpen = !allOpen;
-  ['acc-start','acc-fase1','acc-fase2','acc-fase3'].forEach(id => {
+  window.allOpen = allOpen;
+  ['acc-start','acc-oevelser','acc-fase1','acc-fase2','acc-fase3'].forEach(id => {
     const el = document.getElementById(id);
     if (el) allOpen ? el.classList.add('open') : el.classList.remove('open');
   });
-  const btn = document.getElementById('expand-all-btn');
-  if (btn) btn.textContent = allOpen ? 'Skjul alle moduler ↑' : 'Vis alle moduler ↓';
+  const lbl = document.getElementById('expand-all-label');
+  const arrow = document.getElementById('expand-all-arrow');
+  const t = T[lang] || T.da;
+  if (lbl) lbl.textContent = allOpen ? t.collapseAll : t.expandAll;
+  if (arrow) arrow.textContent = allOpen ? '↑' : '↓';
 }
 </script>
+
 
 </html>
