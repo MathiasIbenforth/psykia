@@ -561,8 +561,8 @@
   .wire-desc { font-size: .78rem; color: var(--text-dim); flex-shrink: 0; padding-left: 12px; width: 145px; line-height: 1.3; }
 
   /* neuron */
-  .neuron-wrap { margin: 36px 0; height: 110px; }
-  .neuron-svg { width: 100%; height: 110px; }
+  .neuron-wrap { margin: 36px 0; height: 140px; }
+  .neuron-svg { width: 100%; height: 140px; }
 
   /* body alarm */
   .threat-visual { margin: 32px 0; }
@@ -959,13 +959,6 @@
       </button>
     </div>
 
-    <!-- Prototype-notice -->
-    <div style="background:rgba(109,184,122,0.06);border:1px solid rgba(109,184,122,0.18);border-radius:12px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;margin-top:16px">
-      <span style="font-size:1rem;flex-shrink:0">🔧</span>
-      <p style="font-size:.78rem;color:var(--text-dim);margin:0;line-height:1.55" id="login-mock-notice">
-        <strong style="color:var(--accent)">Prototype:</strong> I den kliniske version valideres koden mod klinikkens system. Indtast en vilkårlig kode for at demonstrere flowet.
-      </p>
-    </div>
   </div>
 </div>
 
@@ -1228,24 +1221,57 @@
         <p>Mange af de reaktioner, du oplever i din krop og dit sind, handler om dit nervesystem. Det er ikke din skyld, og du er ikke svag. Din krop gør præcis, hvad den er skabt til at gøre.</p>
         <p>I dette forløb lærer du, <strong>hvad nervesystemet er</strong>, <strong>hvordan det reagerer på fare</strong>, <strong>hvad der hjælper det til at finde ro</strong> — og <strong>hvad der sker, når traumer forstyrrer balancen</strong>.</p>
         <div class="neuron-wrap">
-          <svg class="neuron-svg" viewBox="0 0 600 110" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <path id="p1" d="M 30 55 C 120 15, 180 95, 280 55"/>
-              <path id="p2" d="M 280 55 C 360 15, 420 95, 520 55"/>
-            </defs>
-            <use href="#p1" fill="none" stroke="rgba(79,195,161,0.15)" stroke-width="2"/>
-            <use href="#p2" fill="none" stroke="rgba(79,195,161,0.15)" stroke-width="2"/>
-            <circle cx="30" cy="55" r="7" fill="var(--calm)" opacity="0.7"/>
-            <circle cx="280" cy="55" r="7" fill="var(--calm)" opacity="0.7"/>
-            <circle cx="520" cy="55" r="7" fill="var(--calm)" opacity="0.7"/>
-            <circle r="5" fill="var(--accent)">
-              <animateMotion dur="3s" repeatCount="indefinite" begin="0s"><mpath href="#p1"/></animateMotion>
-              <animate attributeName="opacity" values="0;1;1;0" dur="3s" repeatCount="indefinite" begin="0s"/>
+          <svg class="neuron-svg" viewBox="0 0 320 130" xmlns="http://www.w3.org/2000/svg" style="max-width:340px;margin:0 auto;display:block">
+
+            <!-- Left panel: ro-tilstand -->
+            <rect x="4" y="8" width="140" height="114" rx="14"
+              fill="rgba(109,184,122,0.07)" stroke="rgba(109,184,122,0.22)" stroke-width="1.2"/>
+
+            <!-- Calm pulse ring -->
+            <circle cx="74" cy="52" r="28" fill="none" stroke="rgba(109,184,122,0.18)" stroke-width="1">
+              <animate attributeName="r" values="26;33;26" dur="4s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.5;0;0.5" dur="4s" repeatCount="indefinite"/>
             </circle>
-            <circle r="5" fill="var(--accent)">
-              <animateMotion dur="3s" repeatCount="indefinite" begin="1s"><mpath href="#p2"/></animateMotion>
-              <animate attributeName="opacity" values="0;1;1;0" dur="3s" repeatCount="indefinite" begin="1s"/>
+            <circle cx="74" cy="52" r="22" fill="rgba(109,184,122,0.10)" stroke="rgba(109,184,122,0.30)" stroke-width="1"/>
+
+            <!-- Person emoji calm -->
+            <text x="74" y="62" text-anchor="middle" font-size="26">🧍🏽</text>
+
+            <!-- Calm label -->
+            <text x="74" y="96" text-anchor="middle" font-size="9.5" fill="var(--calm)" font-family="sans-serif" font-weight="600" letter-spacing="0.5">RO</text>
+            <text x="74" y="110" text-anchor="middle" font-size="8.5" fill="rgba(168,176,154,0.85)" font-family="sans-serif">Kroppen hviler</text>
+
+            <!-- Right panel: alarmberedskab -->
+            <rect x="176" y="8" width="140" height="114" rx="14"
+              fill="rgba(232,93,93,0.07)" stroke="rgba(232,93,93,0.22)" stroke-width="1.2"/>
+
+            <!-- Alarm pulse rings -->
+            <circle cx="246" cy="52" r="28" fill="none" stroke="rgba(232,93,93,0.20)" stroke-width="1">
+              <animate attributeName="r" values="22;32;22" dur="1.4s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.7;0;0.7" dur="1.4s" repeatCount="indefinite"/>
             </circle>
+            <circle cx="246" cy="52" r="22" fill="rgba(232,93,93,0.10)" stroke="rgba(232,93,93,0.35)" stroke-width="1"/>
+
+            <!-- Person emoji alert -->
+            <text x="246" y="62" text-anchor="middle" font-size="26">🧍🏾</text>
+
+            <!-- Alarm sparks -->
+            <text x="226" y="32" font-size="11" opacity="0.75">
+              ⚡
+              <animate attributeName="opacity" values="0.8;0.2;0.8" dur="1.4s" repeatCount="indefinite" begin="0s"/>
+            </text>
+            <text x="258" y="28" font-size="9" opacity="0.6">
+              ⚡
+              <animate attributeName="opacity" values="0.3;0.9;0.3" dur="1.4s" repeatCount="indefinite" begin="0.5s"/>
+            </text>
+
+            <!-- Alarm label -->
+            <text x="246" y="96" text-anchor="middle" font-size="9.5" fill="var(--danger)" font-family="sans-serif" font-weight="600" letter-spacing="0.5">ALARM</text>
+            <text x="246" y="110" text-anchor="middle" font-size="8.5" fill="rgba(168,176,154,0.85)" font-family="sans-serif">Kroppen er på vagt</text>
+
+            <!-- Arrow between panels -->
+            <text x="160" y="58" text-anchor="middle" font-size="15" fill="rgba(168,176,154,0.5)">⇄</text>
+
           </svg>
         </div>
         <div class="scroll-hint">
@@ -1898,7 +1924,7 @@
             </rect>
             <path d="M163 55 Q163 48 168 48 Q173 48 173 55" fill="none" stroke="var(--danger)" stroke-width="2" opacity="0.7"/>
             <!-- Person inside -->
-            <text x="80" y="60" text-anchor="middle" font-size="20">🧍</text>
+            <text x="80" y="60" text-anchor="middle" font-size="20">🧍🏽</text>
             <text x="80" y="82" text-anchor="middle" font-size="9" fill="var(--text-dim)" font-family="DM Sans">Indenfor</text>
             <text x="290" y="100" text-anchor="middle" font-size="9" fill="var(--text-dim)" font-family="DM Sans">Udenfor</text>
             <!-- Arrow blocked -->
@@ -2151,7 +2177,7 @@
             <text x="312" y="55" text-anchor="middle" font-size="9" fill="var(--calm)" font-family="DM Sans" font-weight="600">🎯 Mål</text>
 
             <!-- Figur nederst til VENSTRE — x=30, langt fra trappen -->
-            <text x="30" y="202" text-anchor="middle" font-size="24">🧍</text>
+            <text x="30" y="202" text-anchor="middle" font-size="24">🧍🏻</text>
 
             <!-- Pil der følger trappekanten fra figur til mål -->
             <polyline
@@ -2340,7 +2366,7 @@
               <animate attributeName="opacity" values="0;1;0" dur="3s" repeatCount="indefinite" begin="1.4s"/>
             </polyline>
             <!-- Small figure below, arms outstretched -->
-            <text x="180" y="112" text-anchor="middle" font-size="20">🧍</text>
+            <text x="180" y="112" text-anchor="middle" font-size="20">🧍🏽</text>
             <!-- Rain lines -->
             <line x1="80"  y1="82" x2="74"  y2="96" stroke="rgba(107,163,214,0.4)" stroke-width="1.2"><animate attributeName="opacity" values="0.2;0.7;0.2" dur="1.5s" repeatCount="indefinite" begin="0s"/></line>
             <line x1="150" y1="80" x2="144" y2="94" stroke="rgba(107,163,214,0.4)" stroke-width="1.2"><animate attributeName="opacity" values="0.2;0.7;0.2" dur="1.5s" repeatCount="indefinite" begin="0.3s"/></line>
@@ -3068,7 +3094,6 @@ function applyTranslations() {
   set('login-desc', t.loginDesc);
   set('login-code-label', t.loginCodeLabel);
   set('login-btn', t.loginBtn);
-  set('login-mock-notice', t.loginMockNotice ? '🔧 Prototype: ' + t.loginMockNotice : undefined);
   // Consent screen
   set('consent-klinik-label', t.consentKlinik);
   set('consent-title', t.consentTitle);
@@ -3973,7 +3998,7 @@ function toggleSpeak5(sid) { if (screenScripts[sid]) { toggleSpeakScreen(sid); r
           </div>
         </div>
         <div class="back-to-overview">
-          <button class="bto-btn" onclick="closeModuleKoncentration()">← Tilbage til oversigtenen</button>
+          <button class="bto-btn" onclick="closeModuleKoncentration()">← Tilbage til oversigten</button>
         </div>
       </div>
     </section>
@@ -4221,7 +4246,7 @@ Object.assign(screenScripts, {
           </div>
         </div>
         <div class="back-to-overview">
-          <button class="bto-btn" onclick="closeModuleKrop()">← Tilbage til oversigtenen</button>
+          <button class="bto-btn" onclick="closeModuleKrop()">← Tilbage til oversigten</button>
         </div>
       </div>
     </section>
@@ -4464,7 +4489,7 @@ Object.assign(screenScripts, {
           </div>
         </div>
         <div class="back-to-overview">
-          <button class="bto-btn" onclick="closeModuleSelv()">← Tilbage til oversigtenen</button>
+          <button class="bto-btn" onclick="closeModuleSelv()">← Tilbage til oversigten</button>
         </div>
       </div>
     </section>
@@ -4558,11 +4583,8 @@ Object.assign(screenScripts, {
         <!-- Animation: stress oven på stress -->
         <div style="display:flex;justify-content:center;margin:24px 0 6px">
           <svg viewBox="0 0 220 130" width="220" height="130">
-            <!-- Person med arme -->
-            <circle cx="110" cy="105" r="11" fill="none" stroke="var(--calm)" stroke-width="1.8"/>
-            <line x1="110" y1="116" x2="110" y2="128" stroke="var(--calm)" stroke-width="1.8" stroke-linecap="round"/>
-            <line x1="110" y1="120" x2="98" y2="126" stroke="var(--calm)" stroke-width="1.8" stroke-linecap="round"/>
-            <line x1="110" y1="120" x2="122" y2="126" stroke="var(--calm)" stroke-width="1.8" stroke-linecap="round"/>
+            <!-- Emoji-figur bærer byrder -->
+            <text x="110" y="133" text-anchor="middle" font-size="22">🧍🏽</text>
 
             <!-- Stablede vægte ovenpå -->
             <rect x="80" y="78" width="60" height="14" rx="3" fill="rgba(232,93,93,0.15)" stroke="var(--danger)" stroke-width="1.3">
@@ -4743,7 +4765,7 @@ Object.assign(screenScripts, {
           </div>
         </div>
         <div class="back-to-overview">
-          <button class="bto-btn" onclick="closeModuleSocial()">← Tilbage til oversigtenen</button>
+          <button class="bto-btn" onclick="closeModuleSocial()">← Tilbage til oversigten</button>
         </div>
       </div>
     </section>
@@ -4972,7 +4994,7 @@ Object.assign(screenScripts, {
           </div>
         </div>
         <div class="back-to-overview">
-          <button class="bto-btn" onclick="closeModuleForaeld()">← Tilbage til oversigtenen</button>
+          <button class="bto-btn" onclick="closeModuleForaeld()">← Tilbage til oversigten</button>
         </div>
       </div>
     </section>
@@ -5134,11 +5156,8 @@ Object.assign(screenScripts, {
               <animate attributeName="y" values="18;20;18" dur="3s" repeatCount="indefinite"/>
             </rect>
             <text x="52" y="30" text-anchor="middle" font-size="9" fill="var(--danger)" font-family="DM Sans, sans-serif">SKAM</text>
-            <!-- Bøjet figur -->
-            <circle cx="52" cy="56" r="11" fill="none" stroke="var(--text-dim)" stroke-width="1.8"/>
-            <line x1="52" y1="67" x2="50" y2="82" stroke="var(--text-dim)" stroke-width="1.8" stroke-linecap="round"/>
-            <line x1="52" y1="73" x2="40" y2="78" stroke="var(--text-dim)" stroke-width="1.8" stroke-linecap="round"/>
-            <line x1="52" y1="73" x2="60" y2="80" stroke="var(--text-dim)" stroke-width="1.8" stroke-linecap="round"/>
+            <!-- Bøjet figur med skam -->
+            <text x="52" y="88" text-anchor="middle" font-size="26" opacity="0.7">🧍🏽</text>
 
             <!-- Midterpil -->
             <line x1="96" y1="68" x2="116" y2="68" stroke="var(--text-dim)" stroke-width="1.2" stroke-dasharray="3 2" opacity="0.35"/>
@@ -5147,22 +5166,12 @@ Object.assign(screenScripts, {
 
             <!-- Højre: to figurer — den ene rækker hånd -->
             <text x="185" y="11" text-anchor="middle" font-size="9" fill="var(--calm)" font-family="DM Sans, sans-serif" opacity="0.8">Delt med andre</text>
-            <!-- Figur 1 (bærer stadig, men oprejst) -->
-            <rect x="146" y="28" width="36" height="14" rx="3" fill="rgba(232,93,93,0.07)" stroke="var(--danger)" stroke-width="1" opacity="0.5"/>
-            <text x="164" y="38" text-anchor="middle" font-size="8" fill="var(--danger)" font-family="DM Sans, sans-serif" opacity="0.5">skam</text>
-            <circle cx="164" cy="56" r="11" fill="none" stroke="var(--calm)" stroke-width="1.8"/>
-            <line x1="164" y1="67" x2="164" y2="82" stroke="var(--calm)" stroke-width="1.8" stroke-linecap="round"/>
-            <line x1="164" y1="73" x2="152" y2="80" stroke="var(--calm)" stroke-width="1.8" stroke-linecap="round"/>
-            <!-- Arm der rækker mod fig 2 -->
-            <line x1="164" y1="73" x2="178" y2="68" stroke="var(--calm)" stroke-width="1.8" stroke-linecap="round"/>
-            <!-- Figur 2 (behandler/anden person) -->
-            <circle cx="206" cy="56" r="11" fill="none" stroke="var(--calm)" stroke-width="1.8"/>
-            <line x1="206" y1="67" x2="206" y2="82" stroke="var(--calm)" stroke-width="1.8" stroke-linecap="round"/>
-            <!-- Arm der møder fig 1 -->
-            <line x1="206" y1="73" x2="192" y2="68" stroke="var(--calm)" stroke-width="1.8" stroke-linecap="round"/>
-            <line x1="206" y1="73" x2="218" y2="80" stroke="var(--calm)" stroke-width="1.8" stroke-linecap="round"/>
+            <!-- Figur 1 (oprejst med lettere skam) -->
+            <text x="164" y="80" text-anchor="middle" font-size="26">🧍🏽</text>
+            <!-- Figur 2 (behandler) -->
+            <text x="206" y="80" text-anchor="middle" font-size="26">🧑🏻‍⚕️</text>
             <!-- Håndtryk/kontaktpunkt -->
-            <circle cx="185" cy="68" r="3" fill="var(--calm)" opacity="0.6">
+            <circle cx="185" cy="64" r="4" fill="var(--calm)" opacity="0.6">
               <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2.5s" repeatCount="indefinite"/>
             </circle>
           </svg>
@@ -5262,7 +5271,7 @@ Object.assign(screenScripts, {
           </div>
         </div>
         <div class="back-to-overview">
-          <button class="bto-btn" onclick="closeModuleStaerk()">← Tilbage til oversigtenen</button>
+          <button class="bto-btn" onclick="closeModuleStaerk()">← Tilbage til oversigten</button>
         </div>
       </div>
     </section>
@@ -5361,18 +5370,9 @@ Object.assign(screenScripts, {
           <svg viewBox="0 0 240 120" width="240" height="120">
             <!-- VENSTRE: isolation -->
             <text x="52" y="11" text-anchor="middle" font-size="9" fill="var(--text-dim)" font-family="DM Sans, sans-serif" opacity="0.8">Isolation</text>
-            <!-- Hoved -->
-            <circle cx="52" cy="35" r="12" fill="none" stroke="var(--text-dim)" stroke-width="1.8" opacity="0.6"/>
-            <!-- Krop -->
-            <line x1="52" y1="47" x2="52" y2="72" stroke="var(--text-dim)" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
-            <!-- Arme -->
-            <line x1="52" y1="56" x2="38" y2="65" stroke="var(--text-dim)" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
-            <line x1="52" y1="56" x2="66" y2="65" stroke="var(--text-dim)" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
-            <!-- Ben -->
-            <line x1="52" y1="72" x2="42" y2="90" stroke="var(--text-dim)" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
-            <line x1="52" y1="72" x2="62" y2="90" stroke="var(--text-dim)" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+            <text x="52" y="76" text-anchor="middle" font-size="36" opacity="0.7">🧍🏽</text>
             <!-- Ring af mistillid -->
-            <circle cx="52" cy="55" r="34" fill="none" stroke="var(--danger)" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.5">
+            <circle cx="52" cy="58" r="34" fill="none" stroke="var(--danger)" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.5">
               <animate attributeName="opacity" values="0.5;0.2;0.5" dur="3s" repeatCount="indefinite"/>
             </circle>
 
@@ -5383,38 +5383,9 @@ Object.assign(screenScripts, {
 
             <!-- HØJRE: tre forbundne figurer -->
             <text x="185" y="11" text-anchor="middle" font-size="9" fill="var(--calm)" font-family="DM Sans, sans-serif" opacity="0.8">Forbundet</text>
-
-            <!-- Figur 1 (midt) -->
-            <circle cx="185" cy="32" r="12" fill="none" stroke="var(--calm)" stroke-width="1.8"/>
-            <line x1="185" y1="44" x2="185" y2="68" stroke="var(--calm)" stroke-width="1.8" stroke-linecap="round"/>
-            <line x1="185" y1="53" x2="172" y2="62" stroke="var(--calm)" stroke-width="1.8" stroke-linecap="round"/>
-            <line x1="185" y1="53" x2="198" y2="62" stroke="var(--calm)" stroke-width="1.8" stroke-linecap="round"/>
-            <line x1="185" y1="68" x2="177" y2="86" stroke="var(--calm)" stroke-width="1.8" stroke-linecap="round"/>
-            <line x1="185" y1="68" x2="193" y2="86" stroke="var(--calm)" stroke-width="1.8" stroke-linecap="round"/>
-
-            <!-- Figur 2 (venstre) -->
-            <circle cx="150" cy="44" r="10" fill="none" stroke="var(--calm)" stroke-width="1.5" opacity="0.7"/>
-            <line x1="150" y1="54" x2="150" y2="74" stroke="var(--calm)" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
-            <line x1="150" y1="61" x2="140" y2="69" stroke="var(--calm)" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
-            <line x1="150" y1="61" x2="160" y2="69" stroke="var(--calm)" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
-            <line x1="150" y1="74" x2="143" y2="88" stroke="var(--calm)" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
-            <line x1="150" y1="74" x2="157" y2="88" stroke="var(--calm)" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
-
-            <!-- Figur 3 (højre) -->
-            <circle cx="220" cy="44" r="10" fill="none" stroke="var(--calm)" stroke-width="1.5" opacity="0.7"/>
-            <line x1="220" y1="54" x2="220" y2="74" stroke="var(--calm)" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
-            <line x1="220" y1="61" x2="210" y2="69" stroke="var(--calm)" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
-            <line x1="220" y1="61" x2="230" y2="69" stroke="var(--calm)" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
-            <line x1="220" y1="74" x2="213" y2="88" stroke="var(--calm)" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
-            <line x1="220" y1="74" x2="227" y2="88" stroke="var(--calm)" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
-
-            <!-- Forbindelseslinjer — svæver frit i luften mellem figurerne -->
-            <line x1="164" y1="55" x2="170" y2="57" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" opacity="0.8">
-              <animate attributeName="opacity" values="0.8;0.3;0.8" dur="3s" repeatCount="indefinite"/>
-            </line>
-            <line x1="200" y1="57" x2="206" y2="55" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" opacity="0.8">
-              <animate attributeName="opacity" values="0.8;0.3;0.8" dur="3s" begin="0.6s" repeatCount="indefinite"/>
-            </line>
+            <text x="185" y="76" text-anchor="middle" font-size="32">🧑🏽</text>
+            <text x="150" y="88" text-anchor="middle" font-size="26" opacity="0.8">👩🏽</text>
+            <text x="220" y="88" text-anchor="middle" font-size="26" opacity="0.8">🧓🏽</text>
           </svg>
         </div>
         <p style="font-size:.82rem;color:var(--text-dim);text-align:center;margin:0 0 24px">Et lille skridt mod andre er bedre end intet</p>
@@ -5534,7 +5505,7 @@ Object.assign(screenScripts, {
           </div>
         </div>
         <div class="back-to-overview">
-          <button class="bto-btn" onclick="closeModuleRelat()">← Tilbage til oversigtenen</button>
+          <button class="bto-btn" onclick="closeModuleRelat()">← Tilbage til oversigten</button>
         </div>
       </div>
     </section>
@@ -5785,7 +5756,7 @@ Object.assign(screenScripts, {
           </div>
         </div>
         <div class="back-to-overview">
-          <button class="bto-btn" onclick="closeModuleHverd()">← Tilbage til oversigtenen</button>
+          <button class="bto-btn" onclick="closeModuleHverd()">← Tilbage til oversigten</button>
         </div>
       </div>
     </section>
@@ -5888,7 +5859,7 @@ Object.assign(screenScripts, {
             </circle>
             <text x="20"  y="106" text-anchor="middle" font-size="8" fill="var(--text-dim)" opacity="0.6">Start</text>
             <text x="340" y="16"  text-anchor="middle" font-size="8" fill="var(--calm)">Her ✓</text>
-            <text x="340" y="10"  text-anchor="middle" font-size="18">🧍</text>
+            <text x="340" y="9"  text-anchor="middle" font-size="22">🧑🏽</text>
           </svg>
         </div>
 
@@ -5994,7 +5965,7 @@ Object.assign(screenScripts, {
           </div>
 
           <div class="back-to-overview">
-            <button class="bto-btn" onclick="closeModuleAfsl()">← Tilbage til oversigtenen</button>
+            <button class="bto-btn" onclick="closeModuleAfsl()">← Tilbage til oversigten</button>
           </div>
         </div>
       </div>
@@ -6058,7 +6029,7 @@ function toggleSpeakAfsl(sectionId) {
     window.speechSynthesis.cancel(); return;
   }
   const script = {
-    'afsl-s0': 'Afslutningsrefleksion. Du er nået langt. Du har gennemgået et helt psykoedukationsforløb. Det kræver noget at læse om de ting, når man selv lever med dem. Tag et øjeblik til at mærke, at du er nået hertil. Dette er afslutningen på forløbet med din nuværende behandler — ikke afslutningen på din bedring.',
+    'afsl-s0': 'Afslutningsrefleksion. Du er nået langt. Du har gennemgået et helt forløb. Det kræver noget at læse om de ting, når man selv lever med dem. Tag et øjeblik til at mærke, at du er nået hertil. Dette er afslutningen på forløbet med din nuværende behandler — ikke afslutningen på din bedring.',
     'afsl-s1': 'Hvad har du lært — og hvad er stadig svært? Brug et øjeblik på at tænke tilbage. Hvad har du lært om dig selv og om PTSD? Alle modulerne forbliver tilgængelige for dig. Du kan genlæse et modul der gav mening, eller udforske et du ikke har åbnet endnu.',
     'afsl-s2': 'Afsked og hvad der kommer. At sige farvel til en behandler man har haft tillid til, kan være svært. Men en afsked er et tegn på at du er klar til næste fase. At afslutte et forløb og starte et nyt er en del af det at have det bedre. Det kræver mod. Det du har lært her forsvinder ikke.'
   }[sectionId];
@@ -6348,10 +6319,8 @@ function toggleAfslSummary() {
     </section>
 
         <div class="back-to-overview">
-          <button class="bto-btn" onclick="closeModuleVejrtrae()">← Tilbage til oversigtenen</button>
+          <button class="bto-btn" onclick="closeModuleVejrtrae()">← Tilbage til oversigten</button>
         </div>
-      </div>
-    </section>
 
   </div><!-- /vejrtrae-content -->
 </div><!-- /vejrtrae-screen -->
@@ -6447,10 +6416,8 @@ function toggleAfslSummary() {
     </section>
 
         <div class="back-to-overview">
-          <button class="bto-btn" onclick="closeModuleTrygsted()">← Tilbage til oversigtenen</button>
+          <button class="bto-btn" onclick="closeModuleTrygsted()">← Tilbage til oversigten</button>
         </div>
-      </div>
-    </section>
 
   </div>
 </div><!-- /trygsted-screen -->
@@ -6555,10 +6522,8 @@ function toggleAfslSummary() {
     </section>
 
         <div class="back-to-overview">
-          <button class="bto-btn" onclick="closeModuleGrounding()">← Tilbage til oversigtenen</button>
+          <button class="bto-btn" onclick="closeModuleGrounding()">← Tilbage til oversigten</button>
         </div>
-      </div>
-    </section>
 
   </div>
 </div><!-- /grounding-screen -->
@@ -6684,10 +6649,8 @@ function toggleAfslSummary() {
     </section>
 
         <div class="back-to-overview">
-          <button class="bto-btn" onclick="closeModuleAandero()">← Tilbage til oversigtenen</button>
+          <button class="bto-btn" onclick="closeModuleAandero()">← Tilbage til oversigten</button>
         </div>
-      </div>
-    </section>
 
   </div>
 </div><!-- /aandero-screen -->
@@ -6730,25 +6693,29 @@ function toggleAfslSummary() {
         <p>Denne side er lavet til mennesker, der har det svært efter meget hårde oplevelser. Du er ikke alene, og der er hjælp at få.</p>
         <p>Du kan også vise siderne til folk i din nærhed, hvis du tror, det kan hjælpe dem med at forstå dig bedre.</p>
 
-        <!-- Welcome animation: people -->
-        <div style="display:flex;justify-content:center;margin:40px 0;height:100px">
-          <svg viewBox="0 0 320 100" width="100%" style="max-width:360px">
-            <!-- Gentle radiating circles from center -->
-            <circle cx="160" cy="50" r="20" fill="rgba(79,195,161,0.15)" stroke="none">
-              <animate attributeName="r" values="20;45;20" dur="4s" repeatCount="indefinite"/>
-              <animate attributeName="opacity" values="0.3;0;0.3" dur="4s" repeatCount="indefinite"/>
+        <!-- Welcome animation: warmth / not alone -->
+        <div style="display:flex;justify-content:center;margin:40px 0;height:110px">
+          <svg viewBox="0 0 200 110" width="100%" style="max-width:240px">
+
+            <!-- Slow warm pulse rings -->
+            <circle cx="100" cy="52" r="32" fill="none" stroke="rgba(109,184,122,0.15)" stroke-width="1">
+              <animate attributeName="r" values="32;54;32" dur="5s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.6;0;0.6" dur="5s" repeatCount="indefinite"/>
             </circle>
-            <circle cx="160" cy="50" r="20" fill="rgba(79,195,161,0.1)" stroke="none">
-              <animate attributeName="r" values="20;45;20" dur="4s" repeatCount="indefinite" begin="1.3s"/>
-              <animate attributeName="opacity" values="0.3;0;0.3" dur="4s" repeatCount="indefinite" begin="1.3s"/>
+            <circle cx="100" cy="52" r="32" fill="none" stroke="rgba(109,184,122,0.10)" stroke-width="1">
+              <animate attributeName="r" values="32;54;32" dur="5s" repeatCount="indefinite" begin="1.8s"/>
+              <animate attributeName="opacity" values="0.4;0;0.4" dur="5s" repeatCount="indefinite" begin="1.8s"/>
             </circle>
-            <!-- Figures -->
-            <text x="100" y="72" text-anchor="middle" font-size="32">🧍</text>
-            <text x="160" y="68" text-anchor="middle" font-size="40">🧍</text>
-            <text x="220" y="72" text-anchor="middle" font-size="32">🧍</text>
-            <!-- Lines connecting them -->
-            <line x1="120" y1="55" x2="145" y2="52" stroke="rgba(79,195,161,0.3)" stroke-width="1.5" stroke-dasharray="3,2"/>
-            <line x1="175" y1="52" x2="200" y2="55" stroke="rgba(79,195,161,0.3)" stroke-width="1.5" stroke-dasharray="3,2"/>
+
+            <!-- Soft filled background -->
+            <circle cx="100" cy="52" r="30" fill="rgba(109,184,122,0.07)" stroke="rgba(109,184,122,0.18)" stroke-width="1"/>
+
+            <!-- Neutral person -->
+            <text x="100" y="68" text-anchor="middle" font-size="38">🧑🏽</text>
+
+            <!-- Label -->
+            <text x="100" y="100" text-anchor="middle" font-size="9" fill="rgba(168,184,162,0.8)" font-family="sans-serif" letter-spacing="0.8">Du er ikke alene</text>
+
           </svg>
         </div>
 
@@ -7200,7 +7167,7 @@ function toggleSpeak0(sid) {
         </div>
 
         <div class="back-to-overview">
-          <button class="bto-btn" onclick="closeModuleMot()">← Tilbage til oversigtenen</button>
+          <button class="bto-btn" onclick="closeModuleMot()">← Tilbage til oversigten</button>
         </div>
       </div>
     </section>
@@ -7447,6 +7414,7 @@ Object.assign(screenScripts, {
             <li>Din behandler guider dig og tilpasser forløbet til dig</li>
           </ul>
         </div>
+      </div>
     </section>
     <div class="section-pause"><div class="section-pause-line"></div><div class="section-pause-dot"></div><div class="section-pause-line"></div></div>
     <section id="mforl-s2">
@@ -7468,7 +7436,7 @@ Object.assign(screenScripts, {
         <div class="ptsd-note"><span class="ni">💛</span><span>Du bestemmer selv dit tempo. Du skal ikke føle dig presset til at læse modulerne, hvis du ikke har energi til det. Fortæl det til din behandler, hvis noget føles for tungt.</span></div>
         <div class="hope-box" style="margin-top:24px"><p>Forskning viser, at patienter der arbejder med deres udfordringer mellem sessionerne, ofte får mere ud af behandlingen. Denne side er et redskab — ikke et krav. Men vi håber, den kan hjælpe dig.</p></div>
         <div class="back-to-overview">
-          <button class="bto-btn" onclick="closeModuleForl()">← Tilbage til oversigtenen</button>
+          <button class="bto-btn" onclick="closeModuleForl()">← Tilbage til oversigten</button>
         </div>
       </div>
     </section>
@@ -7669,7 +7637,7 @@ Object.assign(screenScripts, {
 
         <p>Det er derfor depression er så hyppig hos mennesker med PTSD. Den ene tilstand udløser ikke nødvendigvis den anden — men den langvarige belastning, som PTSD medfører, øger risikoen markant.</p>
 
-        <p>Det vigtigste at forstå er: <strong>PTSD kan have skabt grobund for depressionen</strong>. Det betyder, at når du arbejder på at mindske dine PTSD-symptomer, arbejder du indirekte også på at forebygge eller mindske depression.</p>
+        <p>Det vigtigste at forstå er: <strong>PTSD kan have skabt grobund for depressionen</strong>. Det betyder, at når du arbejder på at mindske dine PTSD-tegn, arbejder du indirekte også på at forebygge eller mindske depression.</p>
 
         <div class="summary-box">
           <div class="sum-label">Det vigtigste fra dette afsnit</div>
@@ -7842,7 +7810,7 @@ function toggleSpeakDep(sid) { if (screenScripts[sid]) { toggleSpeakScreen(sid);
 Object.assign(screenScripts, {
   'mdep-s0': 'Depression og nedtrykthed. Mange mennesker med PTSD oplever perioder, hvor alt føles tungt og gråt. Energien udebliver, lysten forsvinder, og selv enkle ting kræver kræfter, man ikke har. I dette modul lærer du hvad depression er, hvorfor den så ofte følger efter PTSD, og hvad der faktisk kan hjælpe.',
   'mdep-s1': 'Hvad er depression? Når mennesker har været under stor belastning i lang tid, kan kroppen og hjernen reagere ved at skrue ned for alting. Energien daler, humøret mørklægges, og lysten til ting man plejede at holde af, forsvinder. Det kalder vi en depression — fra det latinske ord for et dyk. Depression er ikke det samme som at være lidt trist eller have en dårlig dag. Det er en tilstand, der kan vare uger eller måneder, og som påvirker næsten alt i livet. Tegn på depression kan være konstant træthed og manglende energi, at man ikke kan glæde sig over noget, mørke tanker og håbløshed, lyst til at isolere sig og blive i sengen, forandringer i appetit og søvn, og følelse af at være en byrde for andre. Depression er ikke et tegn på svaghed, og det er ikke din skyld. Det er kroppens og hjernens reaktion på en langvarig, overvældende belastning. Det kan behandles.',
-  'mdep-s2': 'Når kroppen skruer ned. Du har lært, at PTSD holder nervesystemet fast i et konstant alarmberedskab. Kroppen arbejder på højtryk, hele tiden. Men der er kun så meget, et nervesystem kan holde til. Forestil dig en mobiltelefon, der kører en alarm uden pause. Den bruger strøm langt hurtigere end normalt — og til sidst løber batteriet tømt. Kroppen reagerer på samme måde: efter lang tid i alarmberedskab kan den begynde at skrue ned for energien og aktiviteten. Det er derfor depression er så hyppig hos mennesker med PTSD. Det vigtigste at forstå er: PTSD kan have skabt grobund for depressionen. Det betyder, at når du arbejder på at mindske dine PTSD-symptomer, arbejder du indirekte også på at forebygge eller mindske depression.',
+  'mdep-s2': 'Når kroppen skruer ned. Du har lært, at PTSD holder nervesystemet fast i et konstant alarmberedskab. Kroppen arbejder på højtryk, hele tiden. Men der er kun så meget, et nervesystem kan holde til. Forestil dig en mobiltelefon, der kører en alarm uden pause. Den bruger strøm langt hurtigere end normalt — og til sidst løber batteriet tømt. Kroppen reagerer på samme måde: efter lang tid i alarmberedskab kan den begynde at skrue ned for energien og aktiviteten. Det er derfor depression er så hyppig hos mennesker med PTSD. Det vigtigste at forstå er: PTSD kan have skabt grobund for depressionen. Det betyder, at når du arbejder på at mindske dine PTSD-tegn, arbejder du indirekte også på at forebygge eller mindske depression.',
   'mdep-s3': 'Depression og undgåelse forstærker hinanden. Du husker måske fra modul 3, at undgåelse er en naturlig reaktion på angst — men at den på sigt gør angsten større. Depression tilføjer et ekstra lag til dette mønster. Når man er deprimeret, opstår trangen til at blive i sengen, trække sig fra andre og undgå alt, der kræver noget. Det giver kortvarig lettelse — men det bekræfter nervesystemet i, at det var rigtigt at trække sig. Og det gør det sværere at komme ud af depressionen. Depression kan også gøre dig mere følsom over for angst og forværre søvnen — som du har lært er søvnen i forvejen ofte udfordret ved PTSD. Det er ikke mangel på vilje at sidde fast i denne cirkel. Det sker i kroppen — det er ikke dig der gør noget forkert. Og ligesom andre onde cirkler ved PTSD kan den brydes — men det kræver hjælp og tid.',
   'mdep-s4': 'Hvad hjælper — og hvad kan du gøre nu? Depression er ikke en evig tilstand. Den kan behandles — og det vigtigste første skridt er at kende den og tale om den med din behandler. Det vigtigste er at bemærke og sætte ord på, at energien er forsvundet. Når energien er lav, nytter det ikke at presse sig til præcis det samme som normalt. Begynd med meget små ting — det bygger momentum uden at udtømme de ressourcer, du har. Det kan hjælpe at tale med dem omkring dig om, at du har det svært. For nogle er medicin en stor hjælp til at komme ud af den dybeste del af en depression. Der er ikke én rigtig løsning — det er en samtale, du og din behandler skal have. Det kan tage lang tid, før hverdagen føles overkommelig igen — og det er normalt.'
 });
@@ -8348,7 +8316,7 @@ Object.assign(screenScripts, {
             <text x="258" y="82"  text-anchor="middle" font-size="9" fill="var(--text-dim)">M5</text>
             <text x="310" y="72"  text-anchor="middle" font-size="9" fill="var(--calm)">M6 ✓</text>
             <!-- Figure standing at milestone -->
-            <text x="310" y="44" text-anchor="middle" font-size="16">🧍</text>
+            <text x="310" y="44" text-anchor="middle" font-size="16">🧑🏽</text>
           </svg>
         </div>
 
@@ -8488,7 +8456,7 @@ Object.assign(screenScripts, {
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
             <div style="padding:12px 14px;background:rgba(107,163,214,0.06);border-radius:11px;border:1px solid rgba(107,163,214,0.15)"><p style="font-size:.85rem;font-weight:500;color:var(--white);margin-bottom:3px">💤 Søvn og mareridt</p><p style="font-size:.78rem;color:var(--text-dim);margin:0">Hvorfor søvnen forstyrres — og hvad der hjælper</p></div>
             <div style="padding:12px 14px;background:rgba(107,163,214,0.06);border-radius:11px;border:1px solid rgba(107,163,214,0.15)"><p style="font-size:.85rem;font-weight:500;color:var(--white);margin-bottom:3px">🧠 Koncentration</p><p style="font-size:.78rem;color:var(--text-dim);margin:0">Hukommelse og fokus ved PTSD</p></div>
-            <div style="padding:12px 14px;background:rgba(107,163,214,0.06);border-radius:11px;border:1px solid rgba(107,163,214,0.15)"><p style="font-size:.85rem;font-weight:500;color:var(--white);margin-bottom:3px">🫀 Krop og smerte</p><p style="font-size:.78rem;color:var(--text-dim);margin:0">Sammenhængen mellem traume og fysiske symptomer</p></div>
+            <div style="padding:12px 14px;background:rgba(107,163,214,0.06);border-radius:11px;border:1px solid rgba(107,163,214,0.15)"><p style="font-size:.85rem;font-weight:500;color:var(--white);margin-bottom:3px">🫀 Krop og smerte</p><p style="font-size:.78rem;color:var(--text-dim);margin:0">Sammenhængen mellem traume og fysiske udfordringer</p></div>
             <div style="padding:12px 14px;background:rgba(107,163,214,0.06);border-radius:11px;border:1px solid rgba(107,163,214,0.15)"><p style="font-size:.85rem;font-weight:500;color:var(--white);margin-bottom:3px">🍶 Selvmedicinering</p><p style="font-size:.78rem;color:var(--text-dim);margin:0">Selvmedicinering og hvad der hjælper bedre</p></div>
           </div>
         </div>
